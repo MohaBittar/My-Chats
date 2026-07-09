@@ -1,0 +1,2293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SchoolChat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --bg: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border: #334155;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --online: #22c55e;
+        }
+
+        .theme-purple { --primary: #8b5cf6; --primary-dark: #7c3aed; }
+        .theme-blue { --primary: #3b82f6; --primary-dark: #2563eb; }
+        .theme-green { --primary: #22c55e; --primary-dark: #16a34a; }
+        .theme-red { --primary: #ef4444; --primary-dark: #dc2626; }
+        .theme-orange { --primary: #f97316; --primary-dark: #ea580c; }
+        .theme-pink { --primary: #ec4899; --primary-dark: #db2777; }
+        .theme-cyan { --primary: #06b6d4; --primary-dark: #0891b2; }
+        .theme-yellow { --primary: #eab308; --primary-dark: #ca8a04; }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Auth Screens */
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(135deg, var(--bg) 0%, var(--bg-secondary) 100%);
+        }
+
+        .auth-card {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border);
+        }
+
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .auth-logo h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .auth-logo p {
+            color: var(--text-secondary);
+            margin-top: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-google {
+            background: white;
+            color: #333;
+            margin-top: 12px;
+        }
+
+        .btn-google:hover {
+            background: #f5f5f5;
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: black;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            width: auto;
+            font-size: 13px;
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--text-secondary);
+        }
+
+        .auth-switch a {
+            color: var(--primary);
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .divider span {
+            padding: 0 16px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 350px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sidebar-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .sidebar-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: none;
+            background: var(--bg-tertiary);
+            color: var(--text);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .icon-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .user-profile {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .user-number {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .search-box {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 14px;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .contacts-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .contact-item:hover,
+        .contact-item.active {
+            background: var(--bg-tertiary);
+        }
+
+        .contact-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: var(--bg-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            position: relative;
+        }
+
+        .status-dot {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--online);
+            border: 2px solid var(--bg-secondary);
+        }
+
+        .status-dot.offline {
+            background: var(--text-secondary);
+        }
+
+        .contact-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .contact-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .contact-last-message {
+            color: var(--text-secondary);
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .contact-meta {
+            text-align: right;
+        }
+
+        .contact-time {
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+
+        .unread-badge {
+            background: var(--primary);
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-top: 4px;
+            display: inline-block;
+        }
+
+        /* Chat Area */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg);
+        }
+
+        .chat-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-secondary);
+        }
+
+        .chat-header-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chat-header-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .message.sent {
+            align-self: flex-end;
+            background: var(--primary);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.received {
+            align-self: flex-start;
+            background: var(--bg-secondary);
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-time {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 4px;
+        }
+
+        .chat-input {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 12px;
+            background: var(--bg-secondary);
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 14px 18px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 14px;
+        }
+
+        .chat-input input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .send-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            border: none;
+            background: var(--primary);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .send-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Empty State */
+        .empty-state {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        /* Admin Panel */
+        .admin-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg);
+            z-index: 1000;
+            display: none;
+        }
+
+        .admin-panel.active {
+            display: flex;
+        }
+
+        .admin-sidebar {
+            width: 280px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            padding: 20px;
+        }
+
+        .admin-sidebar h3 {
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+        }
+
+        .admin-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .admin-nav-item:hover,
+        .admin-nav-item.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .admin-content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .admin-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .admin-header h2 {
+            font-size: 24px;
+        }
+
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .stat-card h4 {
+            color: var(--text-secondary);
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .stat-card .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .admin-table th,
+        .admin-table td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .admin-table th {
+            background: var(--bg-tertiary);
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .admin-table td {
+            font-size: 14px;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .status-approved {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--success);
+        }
+
+        .status-denied {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .status-banned {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .status-online {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--success);
+        }
+
+        .status-offline {
+            background: rgba(148, 163, 184, 0.2);
+            color: var(--text-secondary);
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .action-btn.approve {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--success);
+        }
+
+        .action-btn.deny {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .action-btn.view {
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--primary);
+        }
+
+        .action-btn.ban {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .action-btn.warn {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .action-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            padding: 24px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            background: var(--bg-tertiary);
+            color: var(--text);
+            cursor: pointer;
+        }
+
+        /* Add Contact Modal */
+        .contact-request-item {
+            background: var(--bg);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .contact-request-item h4 {
+            margin-bottom: 8px;
+        }
+
+        .contact-request-item p {
+            color: var(--text-secondary);
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+
+        .contact-request-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Theme Selector */
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .theme-option {
+            aspect-ratio: 1;
+            border-radius: 12px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-option:hover {
+            transform: scale(1.05);
+        }
+
+        .theme-option.active {
+            border-color: white;
+        }
+
+        .theme-purple { background: #8b5cf6; }
+        .theme-blue { background: #3b82f6; }
+        .theme-green { background: #22c55e; }
+        .theme-red { background: #ef4444; }
+        .theme-orange { background: #f97316; }
+        .theme-pink { background: #ec4899; }
+        .theme-cyan { background: #06b6d4; }
+        .theme-yellow { background: #eab308; }
+
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            z-index: 3000;
+            animation: slideIn 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .notification.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .notification.error {
+            border-left: 4px solid var(--danger);
+        }
+
+        .notification.warning {
+            border-left: 4px solid var(--warning);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Loading */
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Hidden */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+        }
+
+        /* Warning Badge */
+        .warning-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+
+        /* Tab buttons */
+        .tab-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Block chat button */
+        .block-chat-btn {
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .block-chat-btn:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* Admin chat view */
+        .admin-chat-view {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .admin-chat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .admin-chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .admin-chat-input {
+            display: flex;
+            gap: 8px;
+        }
+
+        .admin-chat-input input {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        /* User detail modal */
+        .user-detail-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .user-detail-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .user-detail-info h3 {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .user-detail-info p {
+            color: var(--text-secondary);
+        }
+
+        .user-detail-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .detail-stat {
+            background: var(--bg);
+            padding: 12px;
+            border-radius: 10px;
+        }
+
+        .detail-stat label {
+            color: var(--text-secondary);
+            font-size: 12px;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .detail-stat span {
+            font-weight: 600;
+        }
+
+        .admin-chat-view-container {
+            display: none;
+        }
+
+        .admin-chat-view-container.active {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 100px);
+        }
+
+        .admin-users-list {
+            display: none;
+        }
+
+        .admin-users-list.active {
+            display: block;
+        }
+
+        .admin-applications {
+            display: none;
+        }
+
+        .admin-applications.active {
+            display: block;
+        }
+
+        .admin-chats {
+            display: none;
+        }
+
+        .admin-chats.active {
+            display: block;
+        }
+
+        .admin-settings {
+            display: none;
+        }
+
+        .admin-settings.active {
+            display: block;
+        }
+
+        .admin-blocked-chats {
+            display: none;
+        }
+
+        .admin-blocked-chats.active {
+            display: block;
+        }
+
+        /* Empty chat state */
+        .empty-chat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-secondary);
+        }
+
+        .empty-chat i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        /* Application form */
+        .application-form {
+            background: var(--bg);
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+
+        .application-form h3 {
+            margin-bottom: 16px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--bg-secondary);
+            color: var(--text);
+            font-size: 15px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        select {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--bg-secondary);
+            color: var(--text);
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="modalContent"></div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
+        import { 
+            getAuth, 
+            createUserWithEmailAndPassword, 
+            signInWithEmailAndPassword,
+            signInWithPopup,
+            GoogleAuthProvider,
+            signOut,
+            onAuthStateChanged
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import {
+            getFirestore,
+            collection,
+            doc,
+            setDoc,
+            getDoc,
+            getDocs,
+            updateDoc,
+            deleteDoc,
+            query,
+            where,
+            orderBy,
+            onSnapshot,
+            serverTimestamp,
+            Timestamp,
+            arrayUnion,
+            arrayRemove
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDHzA_qP_kAHv9fc0aMsqWIwnEOVCoK7EQ",
+            authDomain: "mychats-64c42.firebaseapp.com",
+            projectId: "mychats-64c42",
+            storageBucket: "mychats-64c42.firebasestorage.app",
+            messagingSenderId: "618652560803",
+            appId: "1:618652560803:web:90c1017e010f4c7a05be16",
+            measurementId: "G-QDT5NFGQJ3"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const googleProvider = new GoogleAuthProvider();
+
+        const ADMIN_EMAIL = "admin@schoolchat.com";
+
+        let currentUser = null;
+        let currentUserData = null;
+        let selectedContact = null;
+        let currentTheme = "purple";
+        let adminTab = "applications";
+
+        document.getElementById("app").innerHTML = `
+            <div class="auth-container" id="authScreen">
+                <div class="auth-card">
+                    <div class="auth-logo">
+                        <h1><i class="fas fa-comments"></i> SchoolChat</h1>
+                        <p>Connect with your school community</p>
+                    </div>
+                    <div id="loginForm">
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="loginEmail" placeholder="Enter your email">
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" id="loginPassword" placeholder="Enter your password">
+                        </div>
+                        <button class="btn btn-primary" onclick="loginWithEmail()">
+                            <i class="fas fa-sign-in-alt"></i> Sign In
+                        </button>
+                        <div class="divider"><span>or</span></div>
+                        <button class="btn btn-google" onclick="loginWithGoogle()">
+                            <i class="fab fa-google"></i> Sign in with Google
+                        </button>
+                        <p class="auth-switch">Don't have an account? <a onclick="showRegister()">Sign Up</a></p>
+                    </div>
+                    <div id="registerForm" class="hidden">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="regName" placeholder="Enter your full name">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="regEmail" placeholder="Enter your email">
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" id="regPassword" placeholder="Create a password">
+                        </div>
+                        <button class="btn btn-primary" onclick="registerWithEmail()">
+                            <i class="fas fa-user-plus"></i> Create Account
+                        </button>
+                        <div class="divider"><span>or</span></div>
+                        <button class="btn btn-google" onclick="loginWithGoogle()">
+                            <i class="fab fa-google"></i> Sign up with Google
+                        </button>
+                        <p class="auth-switch">Already have an account? <a onclick="showLogin()">Sign In</a></p>
+                    </div>
+                </div>
+            </div>
+            <div class="app-container hidden" id="mainApp">
+                <div class="sidebar">
+                    <div class="sidebar-header">
+                        <h2><i class="fas fa-comments"></i> SchoolChat</h2>
+                        <div class="sidebar-actions">
+                            <button class="icon-btn" onclick="showAddContactModal()" title="Add Contact">
+                                <i class="fas fa-user-plus"></i>
+                            </button>
+                            <button class="icon-btn" onclick="showSettingsModal()" title="Settings">
+                                <i class="fas fa-cog"></i>
+                            </button>
+                            <button class="icon-btn" onclick="openAdminPanel()" title="Admin Panel" id="adminBtn" class="hidden">
+                                <i class="fas fa-shield-alt"></i>
+                            </button>
+                            <button class="icon-btn" onclick="handleLogout()" title="Logout">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="user-profile" id="userProfile"></div>
+                    <div class="search-box">
+                        <input type="text" placeholder="Search contacts..." oninput="searchContacts(this.value)">
+                    </div>
+                    <div class="contacts-list" id="contactsList"></div>
+                </div>
+                <div class="chat-area" id="chatArea">
+                    <div class="empty-state">
+                        <i class="fas fa-comments"></i>
+                        <h3>Welcome to SchoolChat</h3>
+                        <p>Select a contact to start chatting</p>
+                    </div>
+                </div>
+            </div>
+            <div class="admin-panel" id="adminPanel">
+                <div class="admin-sidebar">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
+                        <h2 style="color:var(--primary); font-size:18px;"><i class="fas fa-shield-alt"></i> Admin</h2>
+                        <button class="icon-btn" onclick="closeAdminPanel()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="admin-nav-item active" onclick="switchAdminTab('applications')">
+                        <i class="fas fa-file-alt"></i> Applications
+                    </div>
+                    <div class="admin-nav-item" onclick="switchAdminTab('users')">
+                        <i class="fas fa-users"></i> Users
+                    </div>
+                    <div class="admin-nav-item" onclick="switchAdminTab('chats')">
+                        <i class="fas fa-comments"></i> All Chats
+                    </div>
+                    <div class="admin-nav-item" onclick="switchAdminTab('blocked')">
+                        <i class="fas fa-ban"></i> Blocked Chats
+                    </div>
+                    <div class="admin-nav-item" onclick="switchAdminTab('settings')">
+                        <i class="fas fa-cog"></i> Settings
+                    </div>
+                </div>
+                <div class="admin-content" id="adminContent"></div>
+            </div>
+        `;
+
+        window.showLogin = () => {
+            document.getElementById("loginForm").classList.remove("hidden");
+            document.getElementById("registerForm").classList.add("hidden");
+        };
+
+        window.showRegister = () => {
+            document.getElementById("loginForm").classList.add("hidden");
+            document.getElementById("registerForm").classList.remove("hidden");
+        };
+
+        window.loginWithEmail = async () => {
+            const email = document.getElementById("loginEmail").value;
+            const password = document.getElementById("loginPassword").value;
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                showNotification(error.message, "error");
+            }
+        };
+
+        window.registerWithEmail = async () => {
+            const name = document.getElementById("regName").value;
+            const email = document.getElementById("regEmail").value;
+            const password = document.getElementById("regPassword").value;
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                await setDoc(doc(db, "users", userCredential.user.uid), {
+                    name: name,
+                    email: email,
+                    number: null,
+                    status: "pending",
+                    role: email === ADMIN_EMAIL ? "admin" : "user",
+                    theme: "purple",
+                    createdAt: serverTimestamp(),
+                    lastSeen: serverTimestamp(),
+                    online: true,
+                    warnings: [],
+                    banned: false,
+                    photoURL: null
+                });
+            } catch (error) {
+                showNotification(error.message, "error");
+            }
+        };
+
+        window.loginWithGoogle = async () => {
+            try {
+                const result = await signInWithPopup(auth, googleProvider);
+                const userDoc = await getDoc(doc(db, "users", result.user.uid));
+                if (!userDoc.exists()) {
+                    await setDoc(doc(db, "users", result.user.uid), {
+                        name: result.user.displayName || "User",
+                        email: result.user.email,
+                        number: null,
+                        status: "pending",
+                        role: result.user.email === ADMIN_EMAIL ? "admin" : "user",
+                        theme: "purple",
+                        createdAt: serverTimestamp(),
+                        lastSeen: serverTimestamp(),
+                        online: true,
+                        warnings: [],
+                        banned: false,
+                        photoURL: result.user.photoURL
+                    });
+                }
+            } catch (error) {
+                showNotification(error.message, "error");
+            }
+        };
+
+        window.handleLogout = async () => {
+            if (currentUser) {
+                await updateDoc(doc(db, "users", currentUser.uid), {
+                    online: false,
+                    lastSeen: serverTimestamp()
+                });
+            }
+            signOut(auth);
+        };
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists()) {
+                    currentUserData = userDoc.data();
+                    if (currentUserData.banned) {
+                        showNotification("Your account has been banned", "error");
+                        signOut(auth);
+                        return;
+                    }
+                    if (currentUserData.status === "approved" || currentUserData.role === "admin") {
+                        showMainApp();
+                        loadContacts();
+                        updateOnlineStatus(true);
+                    } else if (currentUserData.status === "pending") {
+                        showPendingScreen();
+                    } else if (currentUserData.status === "denied") {
+                        showDeniedScreen();
+                    }
+                }
+            } else {
+                currentUser = null;
+                currentUserData = null;
+                document.getElementById("authScreen").classList.remove("hidden");
+                document.getElementById("mainApp").classList.add("hidden");
+            }
+        });
+
+        const showMainApp = () => {
+            document.getElementById("authScreen").classList.add("hidden");
+            document.getElementById("mainApp").classList.remove("hidden");
+            document.getElementById("adminBtn").style.display = currentUserData?.role === "admin" ? "flex" : "none";
+            applyTheme(currentUserData?.theme || "purple");
+            updateUserProfile();
+        };
+
+        const showPendingScreen = () => {
+            document.getElementById("authScreen").innerHTML = `
+                <div class="auth-card" style="text-align:center;">
+                    <div style="margin-bottom:20px;">
+                        <i class="fas fa-clock" style="font-size:64px; color:var(--warning);"></i>
+                    </div>
+                    <h2 style="margin-bottom:12px;">Application Pending</h2>
+                    <p style="color:var(--text-secondary); margin-bottom:24px;">
+                        Your application is being reviewed by an admin. Please wait for approval.
+                    </p>
+                    <button class="btn btn-secondary" onclick="signOut(auth)">
+                        <i class="fas fa-sign-out-alt"></i> Sign Out
+                    </button>
+                </div>
+            `;
+        };
+
+        const showDeniedScreen = () => {
+            document.getElementById("authScreen").innerHTML = `
+                <div class="auth-card" style="text-align:center;">
+                    <div style="margin-bottom:20px;">
+                        <i class="fas fa-times-circle" style="font-size:64px; color:var(--danger);"></i>
+                    </div>
+                    <h2 style="margin-bottom:12px;">Application Denied</h2>
+                    <p style="color:var(--text-secondary); margin-bottom:24px;">
+                        Your application has been denied. Please contact support for more information.
+                    </p>
+                    <button class="btn btn-secondary" onclick="signOut(auth)">
+                        <i class="fas fa-sign-out-alt"></i> Sign Out
+                    </button>
+                </div>
+            `;
+        };
+
+        const updateUserProfile = () => {
+            const profile = document.getElementById("userProfile");
+            if (currentUserData) {
+                const initials = currentUserData.name?.split(" ").map(n => n[0]).join("").toUpperCase() || "?";
+                profile.innerHTML = `
+                    <div class="user-avatar">${initials}</div>
+                    <div class="user-info">
+                        <div class="user-name">${currentUserData.name || "User"}</div>
+                        <div class="user-number">${currentUserData.number ? "#" + currentUserData.number : "No number assigned"}</div>
+                    </div>
+                `;
+            }
+        };
+
+        const updateOnlineStatus = async (online) => {
+            if (currentUser) {
+                await updateDoc(doc(db, "users", currentUser.uid), {
+                    online: online,
+                    lastSeen: serverTimestamp()
+                });
+            }
+        };
+
+        window.addEventListener("beforeunload", () => updateOnlineStatus(false));
+        document.addEventListener("visibilitychange", () => {
+            updateOnlineStatus(!document.hidden);
+        });
+
+        const applyTheme = (theme) => {
+            document.body.className = `theme-${theme}`;
+            currentTheme = theme;
+        };
+
+        const loadContacts = () => {
+            if (!currentUser) return;
+            const contactsList = document.getElementById("contactsList");
+            
+            onSnapshot(query(collection(db, "users"), where("status", "==", "approved")), (snapshot) => {
+                contactsList.innerHTML = "";
+                snapshot.forEach((docSnap) => {
+                    if (docSnap.id !== currentUser.uid) {
+                        const userData = docSnap.data();
+                        const initials = userData.name?.split(" ").map(n => n[0]).join("").toUpperCase() || "?";
+                        contactsList.innerHTML += `
+                            <div class="contact-item" onclick="openChat('${docSnap.id}')">
+                                <div class="contact-avatar">
+                                    ${initials}
+                                    <div class="status-dot ${userData.online ? '' : 'offline'}"></div>
+                                </div>
+                                <div class="contact-info">
+                                    <div class="contact-name">${userData.name}</div>
+                                    <div class="contact-last-message">#${userData.number || "No number"}</div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+            });
+        };
+
+        window.searchContacts = (search) => {
+            const items = document.querySelectorAll(".contact-item");
+            items.forEach(item => {
+                const name = item.querySelector(".contact-name")?.textContent.toLowerCase() || "";
+                item.style.display = name.includes(search.toLowerCase()) ? "flex" : "none";
+            });
+        };
+
+        window.openChat = async (userId) => {
+            const userDoc = await getDoc(doc(db, "users", userId));
+            if (!userDoc.exists()) return;
+            const userData = userDoc.data();
+            
+            selectedContact = { id: userId, ...userData };
+            
+            const chatId = [currentUser.uid, userId].sort().join("_");
+            const chatDoc = await getDoc(doc(db, "chats", chatId));
+            
+            if (!chatDoc.exists()) {
+                await setDoc(doc(db, "chats", chatId), {
+                    participants: [currentUser.uid, userId],
+                    createdAt: serverTimestamp(),
+                    blocked: false,
+                    blockedBy: null,
+                    blockedReason: null
+                });
+            }
+            
+            const initials = userData.name?.split(" ").map(n => n[0]).join("").toUpperCase() || "?";
+            
+            document.getElementById("chatArea").innerHTML = `
+                <div class="chat-header">
+                    <div class="chat-header-info">
+                        <div class="contact-avatar" style="width:42px; height:42px;">
+                            ${initials}
+                            <div class="status-dot ${userData.online ? '' : 'offline'}"></div>
+                        </div>
+                        <div>
+                            <div style="font-weight:600;">${userData.name}</div>
+                            <div style="font-size:13px; color:var(--text-secondary);">
+                                #${userData.number || "No number"} • ${userData.online ? 'Online' : 'Last seen: ' + formatLastSeen(userData.lastSeen)}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-header-actions">
+                        <button class="block-chat-btn" onclick="blockChat('${chatId}')">
+                            <i class="fas fa-ban"></i> Block
+                        </button>
+                    </div>
+                </div>
+                <div class="chat-messages" id="chatMessages"></div>
+                <div class="chat-input">
+                    <input type="text" id="messageInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter')sendMessage('${chatId}')">
+                    <button class="send-btn" onclick="sendMessage('${chatId}')">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            `;
+            
+            loadMessages(chatId);
+        };
+
+        const loadMessages = (chatId) => {
+            const messagesContainer = document.getElementById("chatMessages");
+            if (!messagesContainer) return;
+            
+            onSnapshot(query(collection(db, "chats", chatId, "messages"), orderBy("createdAt")), (snapshot) => {
+                messagesContainer.innerHTML = "";
+                snapshot.forEach((docSnap) => {
+                    const msg = docSnap.data();
+                    const isSent = msg.senderId === currentUser.uid;
+                    messagesContainer.innerHTML += `
+                        <div class="message ${isSent ? 'sent' : 'received'}">
+                            <div>${msg.text}</div>
+                            <div class="message-time">${formatTime(msg.createdAt)}</div>
+                        </div>
+                    `;
+                });
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            });
+        };
+
+        window.sendMessage = async (chatId) => {
+            const input = document.getElementById("messageInput");
+            const text = input.value.trim();
+            if (!text) return;
+            
+            await setDoc(doc(collection(db, "chats", chatId, "messages")), {
+                text: text,
+                senderId: currentUser.uid,
+                createdAt: serverTimestamp()
+            });
+            
+            input.value = "";
+        };
+
+        window.blockChat = async (chatId) => {
+            if (confirm("Are you sure you want to block this chat?")) {
+                await updateDoc(doc(db, "chats", chatId), {
+                    blocked: true,
+                    blockedBy: currentUser.uid,
+                    blockedAt: serverTimestamp()
+                });
+                showNotification("Chat blocked", "warning");
+                document.getElementById("chatArea").innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-ban"></i>
+                        <h3>Chat Blocked</h3>
+                        <p>This chat has been blocked</p>
+                    </div>
+                `;
+            }
+        };
+
+        const formatTime = (timestamp) => {
+            if (!timestamp) return "";
+            const date = timestamp.toDate();
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        };
+
+        const formatLastSeen = (timestamp) => {
+            if (!timestamp) return "Unknown";
+            const date = timestamp.toDate();
+            const now = new Date();
+            const diff = now - date;
+            if (diff < 60000) return "Just now";
+            if (diff < 3600000) return Math.floor(diff / 60000) + "m ago";
+            if (diff < 86400000) return Math.floor(diff / 3600000) + "h ago";
+            return date.toLocaleDateString();
+        };
+
+        window.showAddContactModal = () => {
+            document.getElementById("modalContent").innerHTML = `
+                <div class="modal-header">
+                    <h3>Add Contact</h3>
+                    <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="form-group">
+                    <label>Enter user number</label>
+                    <input type="number" id="contactNumber" placeholder="Enter number">
+                </div>
+                <button class="btn btn-primary" onclick="searchByNumber()">
+                    <i class="fas fa-search"></i> Search
+                </button>
+                <div id="searchResults" style="margin-top:16px;"></div>
+            `;
+            document.getElementById("modalOverlay").classList.add("active");
+        };
+
+        window.searchByNumber = async () => {
+            const number = parseInt(document.getElementById("contactNumber").value);
+            if (!number) return;
+            
+            const q = query(collection(db, "users"), where("number", "==", number));
+            const snapshot = await getDocs(q);
+            
+            const results = document.getElementById("searchResults");
+            if (snapshot.empty) {
+                results.innerHTML = "<p style='color:var(--text-secondary);'>No user found with this number</p>";
+                return;
+            }
+            
+            snapshot.forEach((docSnap) => {
+                const userData = docSnap.data();
+                if (docSnap.id !== currentUser.uid) {
+                    results.innerHTML = `
+                        <div class="contact-request-item">
+                            <h4>${userData.name}</h4>
+                            <p>#${userData.number}</p>
+                            <button class="btn btn-primary btn-sm" onclick="openChat('${docSnap.id}'); closeModal();">
+                                <i class="fas fa-comment"></i> Chat
+                            </button>
+                        </div>
+                    `;
+                }
+            });
+        };
+
+        window.showSettingsModal = () => {
+            document.getElementById("modalContent").innerHTML = `
+                <div class="modal-header">
+                    <h3>Settings</h3>
+                    <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="form-group">
+                    <label>Apply for a Number</label>
+                    <p style="color:var(--text-secondary); font-size:13px; margin-bottom:12px;">
+                        Fill out this form to request your unique number
+                    </p>
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="appName" value="${currentUserData?.name || ''}" placeholder="Your full name">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="appPhone" placeholder="Your phone number">
+                    </div>
+                    <div class="form-group">
+                        <label>Grade/Class</label>
+                        <input type="text" id="appGrade" placeholder="Your grade or class">
+                    </div>
+                    <div class="form-group">
+                        <label>Why do you want to join?</label>
+                        <textarea id="appReason" placeholder="Tell us why you want to join..."></textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="submitApplication()">
+                        <i class="fas fa-paper-plane"></i> Submit Application
+                    </button>
+                </div>
+                <div class="form-group">
+                    <label>Theme</label>
+                    <div class="theme-grid">
+                        <div class="theme-option theme-purple" onclick="changeTheme('purple')"></div>
+                        <div class="theme-option theme-blue" onclick="changeTheme('blue')"></div>
+                        <div class="theme-option theme-green" onclick="changeTheme('green')"></div>
+                        <div class="theme-option theme-red" onclick="changeTheme('red')"></div>
+                        <div class="theme-option theme-orange" onclick="changeTheme('orange')"></div>
+                        <div class="theme-option theme-pink" onclick="changeTheme('pink')"></div>
+                        <div class="theme-option theme-cyan" onclick="changeTheme('cyan')"></div>
+                        <div class="theme-option theme-yellow" onclick="changeTheme('yellow')"></div>
+                    </div>
+                </div>
+            `;
+            document.getElementById("modalOverlay").classList.add("active");
+        };
+
+        window.submitApplication = async () => {
+            const name = document.getElementById("appName").value;
+            const phone = document.getElementById("appPhone").value;
+            const grade = document.getElementById("appGrade").value;
+            const reason = document.getElementById("appReason").value;
+            
+            if (!name || !phone || !grade || !reason) {
+                showNotification("Please fill all fields", "error");
+                return;
+            }
+            
+            await updateDoc(doc(db, "users", currentUser.uid), {
+                application: {
+                    name, phone, grade, reason,
+                    submittedAt: serverTimestamp()
+                }
+            });
+            
+            showNotification("Application submitted!", "success");
+            closeModal();
+        };
+
+        window.changeTheme = async (theme) => {
+            applyTheme(theme);
+            if (currentUser) {
+                await updateDoc(doc(db, "users", currentUser.uid), { theme: theme });
+            }
+            document.querySelectorAll(".theme-option").forEach(el => el.classList.remove("active"));
+            document.querySelector(`.theme-${theme}`)?.classList.add("active");
+        };
+
+        window.closeModal = () => {
+            document.getElementById("modalOverlay").classList.remove("active");
+        };
+
+        const showNotification = (message, type) => {
+            const notification = document.createElement("div");
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'exclamation-triangle'}"></i>
+                <span>${message}</span>
+            `;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        };
+
+        // Admin Panel
+        window.openAdminPanel = async () => {
+            if (currentUserData?.role !== "admin") return;
+            document.getElementById("adminPanel").classList.add("active");
+            switchAdminTab("applications");
+        };
+
+        window.closeAdminPanel = () => {
+            document.getElementById("adminPanel").classList.remove("active");
+        };
+
+        window.switchAdminTab = (tab) => {
+            adminTab = tab;
+            document.querySelectorAll(".admin-nav-item").forEach(el => el.classList.remove("active"));
+            event?.target?.closest?.(".admin-nav-item")?.classList.add("active");
+            loadAdminTab(tab);
+        };
+
+        const loadAdminTab = async (tab) => {
+            const content = document.getElementById("adminContent");
+            
+            switch(tab) {
+                case "applications":
+                    await loadApplications(content);
+                    break;
+                case "users":
+                    await loadUsers(content);
+                    break;
+                case "chats":
+                    await loadAllChats(content);
+                    break;
+                case "blocked":
+                    await loadBlockedChats(content);
+                    break;
+                case "settings":
+                    loadAdminSettings(content);
+                    break;
+            }
+        };
+
+        const loadApplications = async (container) => {
+            const snapshot = await getDocs(query(collection(db, "users"), where("status", "==", "pending")));
+            
+            let html = `
+                <div class="admin-header">
+                    <h2>Pending Applications</h2>
+                </div>
+            `;
+            
+            if (snapshot.empty) {
+                html += `<p style="color:var(--text-secondary);">No pending applications</p>`;
+            } else {
+                html += `
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Email</th>
+                                <th>Application</th>
+                                <th>Submitted</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                snapshot.forEach((docSnap) => {
+                    const user = docSnap.data();
+                    const app = user.application || {};
+                    html += `
+                        <tr>
+                            <td>${user.name}</td>
+                            <td>${user.email}</td>
+                            <td>
+                                <strong>Phone:</strong> ${app.phone || 'N/A'}<br>
+                                <strong>Grade:</strong> ${app.grade || 'N/A'}<br>
+                                <strong>Reason:</strong> ${app.reason || 'N/A'}
+                            </td>
+                            <td>${app.submittedAt ? formatLastSeen(app.submittedAt) : 'N/A'}</td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="action-btn approve" onclick="approveUser('${docSnap.id}')" title="Approve">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button class="action-btn deny" onclick="denyUser('${docSnap.id}')" title="Deny">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                html += `</tbody></table>`;
+            }
+            
+            container.innerHTML = html;
+        };
+
+        const loadUsers = async (container) => {
+            const snapshot = await getDocs(query(collection(db, "users"), where("status", "==", "approved")));
+            
+            let html = `
+                <div class="admin-header">
+                    <h2>All Users</h2>
+                </div>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Number</th>
+                            <th>Status</th>
+                            <th>Warnings</th>
+                            <th>Last Seen</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            snapshot.forEach((docSnap) => {
+                const user = docSnap.data();
+                const warnings = user.warnings?.length || 0;
+                html += `
+                    <tr>
+                        <td>
+                            ${user.name}
+                            ${user.banned ? '<span class="status-badge status-banned">BANNED</span>' : ''}
+                        </td>
+                        <td>#${user.number || 'N/A'}</td>
+                        <td>
+                            <span class="status-badge ${user.online ? 'status-online' : 'status-offline'}">
+                                ${user.online ? 'Online' : 'Offline'}
+                            </span>
+                        </td>
+                        <td>${warnings}</td>
+                        <td>${user.lastSeen ? formatLastSeen(user.lastSeen) : 'N/A'}</td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn view" onclick="viewUser('${docSnap.id}')" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="action-btn warn" onclick="warnUser('${docSnap.id}')" title="Warn">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </button>
+                                <button class="action-btn ban" onclick="banUser('${docSnap.id}')" title="Ban">
+                                    <i class="fas fa-ban"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        };
+
+        const loadAllChats = async (container) => {
+            const snapshot = await getDocs(collection(db, "chats"));
+            
+            let html = `
+                <div class="admin-header">
+                    <h2>All Chats</h2>
+                </div>
+            `;
+            
+            if (snapshot.empty) {
+                html += `<p style="color:var(--text-secondary);">No chats yet</p>`;
+            } else {
+                html += `
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Chat ID</th>
+                                <th>Participants</th>
+                                <th>Messages</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                for (const docSnap of snapshot.docs) {
+                    const chat = docSnap.data();
+                    const messagesSnapshot = await getDocs(collection(db, "chats", docSnap.id, "messages"));
+                    const participantNames = [];
+                    
+                    for (const pId of chat.participants || []) {
+                        const userDoc = await getDoc(doc(db, "users", pId));
+                        if (userDoc.exists()) {
+                            participantNames.push(userDoc.data().name);
+                        }
+                    }
+                    
+                    html += `
+                        <tr>
+                            <td>${docSnap.id.substring(0, 20)}...</td>
+                            <td>${participantNames.join(" & ")}</td>
+                            <td>${messagesSnapshot.size}</td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="action-btn view" onclick="viewChat('${docSnap.id}')" title="View Chat">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }
+                
+                html += `</tbody></table>`;
+            }
+            
+            container.innerHTML = html;
+        };
+
+        const loadBlockedChats = async (container) => {
+            const snapshot = await getDocs(query(collection(db, "chats"), where("blocked", "==", true)));
+            
+            let html = `
+                <div class="admin-header">
+                    <h2>Blocked Chats</h2>
+                </div>
+            `;
+            
+            if (snapshot.empty) {
+                html += `<p style="color:var(--text-secondary);">No blocked chats</p>`;
+            } else {
+                html += `
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Chat</th>
+                                <th>Blocked By</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                for (const docSnap of snapshot.docs) {
+                    const chat = docSnap.data();
+                    const blockerDoc = await getDoc(doc(db, "users", chat.blockedBy));
+                    const blockerName = blockerDoc.exists() ? blockerDoc.data().name : "Unknown";
+                    
+                    const participantNames = [];
+                    for (const pId of chat.participants || []) {
+                        const userDoc = await getDoc(doc(db, "users", pId));
+                        if (userDoc.exists()) participantNames.push(userDoc.data().name);
+                    }
+                    
+                    html += `
+                        <tr>
+                            <td>${participantNames.join(" & ")}</td>
+                            <td>${blockerName}</td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="action-btn view" onclick="viewChat('${docSnap.id}')" title="View Chat">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn approve" onclick="unblockChat('${docSnap.id}')" title="Unblock">
+                                        <i class="fas fa-unlock"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }
+                
+                html += `</tbody></table>`;
+            }
+            
+            container.innerHTML = html;
+        };
+
+        const loadAdminSettings = (container) => {
+            container.innerHTML = `
+                <div class="admin-header">
+                    <h2>Admin Settings</h2>
+                </div>
+                <div class="application-form">
+                    <h3>System Information</h3>
+                    <p style="color:var(--text-secondary); margin-bottom:16px;">
+                        Admin email: ${ADMIN_EMAIL}<br>
+                        Current user: ${currentUserData?.email}
+                    </p>
+                </div>
+            `;
+        };
+
+        window.approveUser = async (userId) => {
+            const number = Math.floor(1000 + Math.random() * 9000);
+            await updateDoc(doc(db, "users", userId), {
+                status: "approved",
+                number: number
+            });
+            showNotification(`User approved with number #${number}`, "success");
+            loadAdminTab("applications");
+        };
+
+        window.denyUser = async (userId) => {
+            await updateDoc(doc(db, "users", userId), {
+                status: "denied"
+            });
+            showNotification("User denied", "error");
+            loadAdminTab("applications");
+        };
+
+        window.viewUser = async (userId) => {
+            const userDoc = await getDoc(doc(db, "users", userId));
+            if (!userDoc.exists()) return;
+            const user = userDoc.data();
+            
+            document.getElementById("modalContent").innerHTML = `
+                <div class="modal-header">
+                    <h3>User Details</h3>
+                    <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="user-detail-header">
+                    <div class="user-detail-avatar">${user.name?.[0]?.toUpperCase() || '?'}</div>
+                    <div class="user-detail-info">
+                        <h3>${user.name}</h3>
+                        <p>${user.email}</p>
+                    </div>
+                </div>
+                <div class="user-detail-stats">
+                    <div class="detail-stat">
+                        <label>Number</label>
+                        <span>#${user.number || 'N/A'}</span>
+                    </div>
+                    <div class="detail-stat">
+                        <label>Status</label>
+                        <span class="status-badge ${user.online ? 'status-online' : 'status-offline'}">
+                            ${user.online ? 'Online' : 'Offline'}
+                        </span>
+                    </div>
+                    <div class="detail-stat">
+                        <label>Warnings</label>
+                        <span>${user.warnings?.length || 0}</span>
+                    </div>
+                    <div class="detail-stat">
+                        <label>Last Seen</label>
+                        <span>${user.lastSeen ? formatLastSeen(user.lastSeen) : 'N/A'}</span>
+                    </div>
+                </div>
+                ${user.warnings?.length ? `
+                    <div style="margin-bottom:16px;">
+                        <h4 style="margin-bottom:8px;">Warnings:</h4>
+                        ${user.warnings.map(w => `<div class="warning-badge"><i class="fas fa-exclamation-triangle"></i> ${w}</div>`).join(' ')}
+                    </div>
+                ` : ''}
+                <div class="action-btns" style="justify-content:flex-end;">
+                    <button class="btn btn-warning btn-sm" onclick="warnUser('${userId}'); closeModal();">
+                        <i class="fas fa-exclamation-triangle"></i> Warn
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="banUser('${userId}'); closeModal();">
+                        <i class="fas fa-ban"></i> Ban
+                    </button>
+                </div>
+            `;
+            document.getElementById("modalOverlay").classList.add("active");
+        };
+
+        window.warnUser = async (userId) => {
+            const reason = prompt("Enter warning reason:");
+            if (!reason) return;
+            
+            const userDoc = await getDoc(doc(db, "users", userId));
+            const warnings = userDoc.data().warnings || [];
+            warnings.push(reason);
+            
+            await updateDoc(doc(db, "users", userId), {
+                warnings: warnings
+            });
+            showNotification("User warned", "warning");
+            loadAdminTab("users");
+        };
+
+        window.banUser = async (userId) => {
+            if (!confirm("Are you sure you want to ban this user?")) return;
+            await updateDoc(doc(db, "users", userId), {
+                banned: true
+            });
+            showNotification("User banned", "error");
+            loadAdminTab("users");
+        };
+
+        window.viewChat = async (chatId) => {
+            document.getElementById("modalContent").innerHTML = `
+                <div class="modal-header">
+                    <h3>Chat View</h3>
+                    <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="admin-chat-view-container active">
+                    <div class="admin-chat-messages" id="adminChatMessages" style="height:400px; overflow-y:auto;"></div>
+                    <div class="admin-chat-input">
+                        <input type="text" id="adminMessageInput" placeholder="Message as admin..." onkeypress="if(event.key==='Enter')sendAdminMessage('${chatId}')">
+                        <button class="send-btn" onclick="sendAdminMessage('${chatId}')" style="width:48px; height:48px;">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.getElementById("modalOverlay").classList.add("active");
+            
+            onSnapshot(query(collection(db, "chats", chatId, "messages"), orderBy("createdAt")), (snapshot) => {
+                const container = document.getElementById("adminChatMessages");
+                if (!container) return;
+                container.innerHTML = "";
+                snapshot.forEach((docSnap) => {
+                    const msg = docSnap.data();
+                    const isAdmin = msg.senderId === currentUser.uid;
+                    container.innerHTML += `
+                        <div class="message ${isAdmin ? 'sent' : 'received'}">
+                            <div>${msg.text}</div>
+                            <div class="message-time">${formatTime(msg.createdAt)}</div>
+                        </div>
+                    `;
+                });
+                container.scrollTop = container.scrollHeight;
+            });
+        };
+
+        window.sendAdminMessage = async (chatId) => {
+            const input = document.getElementById("adminMessageInput");
+            const text = input.value.trim();
+            if (!text) return;
+            
+            await setDoc(doc(collection(db, "chats", chatId, "messages")), {
+                text: `[Admin] ${text}`,
+                senderId: currentUser.uid,
+                createdAt: serverTimestamp()
+            });
+            
+            input.value = "";
+        };
+
+        window.unblockChat = async (chatId) => {
+            await updateDoc(doc(db, "chats", chatId), {
+                blocked: false,
+                blockedBy: null,
+                blockedAt: null
+            });
+            showNotification("Chat unblocked", "success");
+            loadAdminTab("blocked");
+        };
+
+        window.addEventListener("click", (e) => {
+            if (e.target.id === "modalOverlay") {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
