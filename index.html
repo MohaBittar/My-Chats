@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SchoolChat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --bg: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border: #334155;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --online: #22c55e;
+            --gold: #ffd700;
+        }
+        .theme-purple { --primary: #8b5cf6; --primary-dark: #7c3aed; }
+        .theme-blue { --primary: #3b82f6; --primary-dark: #2563eb; }
+        .theme-green { --primary: #22c55e; --primary-dark: #16a34a; }
+        .theme-red { --primary: #ef4444; --primary-dark: #dc2626; }
+        .theme-orange { --primary: #f97316; --primary-dark: #ea580c; }
+        .theme-pink { --primary: #ec4899; --primary-dark: #db2777; }
+        .theme-cyan { --primary: #06b6d4; --primary-dark: #0891b2; }
+        .theme-yellow { --primary: #eab308; --primary-dark: #ca8a04; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow: hidden; }
+        .app-container { display: flex; height: 100vh; }
+        .auth-container { display: flex; justify-content: center; align-items: center; width: 100%; height: 100vh; background: linear-gradient(135deg, var(--bg) 0%, var(--bg-secondary) 100%); }
+        .auth-card { background: var(--bg-secondary); border-radius: 20px; padding: 40px; width: 100%; max-width: 420px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid var(--border); }
+        .auth-logo { text-align: center; margin-bottom: 30px; }
+        .auth-logo h1 { font-size: 32px; font-weight: 700; color: var(--primary); }
+        .auth-logo p { color: var(--text-secondary); margin-top: 8px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-secondary); font-size: 14px; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 15px; transition: all 0.3s; font-family: inherit; }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99,102,241,0.2); }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+        .btn { width: 100%; padding: 14px; border-radius: 12px; border: none; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
+        .btn-google { background: white; color: #333; margin-top: 12px; }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text); }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-warning { background: var(--warning); color: black; }
+        .btn-sm { padding: 8px 16px; width: auto; font-size: 13px; }
+        .auth-switch { text-align: center; margin-top: 20px; color: var(--text-secondary); }
+        .auth-switch a { color: var(--primary); cursor: pointer; text-decoration: none; }
+        .divider { display: flex; align-items: center; margin: 20px 0; color: var(--text-secondary); font-size: 13px; }
+        .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+        .divider span { padding: 0 16px; }
+        .sidebar { width: 350px; background: var(--bg-secondary); border-right: 1px solid var(--border); display: flex; flex-direction: column; height: 100vh; }
+        .sidebar-header { padding: 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+        .sidebar-header h2 { font-size: 20px; font-weight: 700; color: var(--primary); }
+        .sidebar-actions { display: flex; gap: 8px; }
+        .icon-btn { width: 40px; height: 40px; border-radius: 10px; border: none; background: var(--bg-tertiary); color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
+        .icon-btn:hover { background: var(--primary); color: white; }
+        .user-profile { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; cursor: pointer; }
+        .user-avatar { width: 45px; height: 45px; border-radius: 12px; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; overflow: hidden; flex-shrink: 0; }
+        .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .user-info { flex: 1; }
+        .user-name { font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 6px; }
+        .admin-badge { background: var(--gold); color: #000; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
+        .user-number { color: var(--text-secondary); font-size: 13px; }
+        .user-status-text { color: var(--text-secondary); font-size: 12px; font-style: italic; margin-top: 2px; }
+        .search-box { padding: 16px 20px; border-bottom: 1px solid var(--border); }
+        .search-box input { width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 14px; }
+        .contacts-list { flex: 1; overflow-y: auto; padding: 8px; }
+        .contact-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; cursor: pointer; transition: all 0.3s; }
+        .contact-item:hover, .contact-item.active { background: var(--bg-tertiary); }
+        .contact-avatar { width: 48px; height: 48px; border-radius: 12px; background: var(--bg-tertiary); display: flex; align-items: center; justify-content: center; font-weight: 600; position: relative; overflow: hidden; flex-shrink: 0; }
+        .contact-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .status-dot { position: absolute; bottom: 2px; right: 2px; width: 12px; height: 12px; border-radius: 50%; background: var(--online); border: 2px solid var(--bg-secondary); }
+        .status-dot.offline { background: var(--text-secondary); }
+        .contact-info { flex: 1; min-width: 0; }
+        .contact-name { font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 6px; }
+        .contact-last-message { color: var(--text-secondary); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .contact-status { color: var(--primary); font-size: 11px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .chat-area { flex: 1; display: flex; flex-direction: column; background: var(--bg); }
+        .chat-header { padding: 16px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--bg-secondary); }
+        .chat-header-info { display: flex; align-items: center; gap: 12px; }
+        .chat-header-actions { display: flex; gap: 8px; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 12px; }
+        .message { max-width: 70%; padding: 12px 16px; border-radius: 16px; font-size: 14px; line-height: 1.5; position: relative; }
+        .message.sent { align-self: flex-end; background: var(--primary); color: white; border-bottom-right-radius: 4px; }
+        .message.received { align-self: flex-start; background: var(--bg-secondary); border-bottom-left-radius: 4px; }
+        .message-time { font-size: 11px; opacity: 0.7; margin-top: 4px; }
+        .message-sender { font-size: 11px; font-weight: 700; margin-bottom: 4px; }
+        .message-sender.is-admin { color: var(--gold); text-shadow: 0 0 8px rgba(255,215,0,0.5); }
+        .message-delete-btn { position: absolute; top: 4px; right: 4px; width: 20px; height: 20px; border-radius: 50%; border: none; background: rgba(239,68,68,0.8); color: white; font-size: 10px; cursor: pointer; display: none; align-items: center; justify-content: center; }
+        .message:hover .message-delete-btn { display: flex; }
+        .message-image { max-width: 200px; border-radius: 8px; margin-top: 8px; cursor: pointer; }
+        .chat-input { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; gap: 12px; background: var(--bg-secondary); }
+        .chat-input input { flex: 1; padding: 14px 18px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 14px; }
+        .send-btn { width: 48px; height: 48px; border-radius: 12px; border: none; background: var(--primary); color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
+        .send-btn:hover { background: var(--primary-dark); }
+        .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-secondary); }
+        .empty-state i { font-size: 64px; margin-bottom: 20px; opacity: 0.5; }
+        .empty-state h3 { font-size: 20px; margin-bottom: 8px; color: var(--text); }
+        .admin-panel { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 1000; display: none; }
+        .admin-panel.active { display: flex; }
+        .admin-sidebar { width: 280px; background: var(--bg-secondary); border-right: 1px solid var(--border); padding: 20px; overflow-y: auto; }
+        .admin-nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px; cursor: pointer; transition: all 0.3s; color: var(--text); margin-bottom: 4px; }
+        .admin-nav-item:hover, .admin-nav-item.active { background: var(--primary); color: white; }
+        .admin-content { flex: 1; padding: 24px; overflow-y: auto; }
+        .admin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+        .admin-header h2 { font-size: 24px; }
+        .admin-table { width: 100%; border-collapse: collapse; background: var(--bg-secondary); border-radius: 16px; overflow: hidden; border: 1px solid var(--border); }
+        .admin-table th, .admin-table td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+        .admin-table th { background: var(--bg-tertiary); font-weight: 600; font-size: 13px; color: var(--text-secondary); text-transform: uppercase; }
+        .admin-table td { font-size: 14px; }
+        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-block; }
+        .status-pending { background: rgba(245,158,11,0.2); color: var(--warning); }
+        .status-approved { background: rgba(34,197,94,0.2); color: var(--success); }
+        .status-denied { background: rgba(239,68,68,0.2); color: var(--danger); }
+        .status-banned { background: rgba(239,68,68,0.2); color: var(--danger); }
+        .status-online { background: rgba(34,197,94,0.2); color: var(--success); }
+        .status-offline { background: rgba(148,163,184,0.2); color: var(--text-secondary); }
+        .action-btns { display: flex; gap: 8px; }
+        .action-btn { width: 32px; height: 32px; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
+        .action-btn.approve { background: rgba(34,197,94,0.2); color: var(--success); }
+        .action-btn.deny { background: rgba(239,68,68,0.2); color: var(--danger); }
+        .action-btn.view { background: rgba(99,102,241,0.2); color: var(--primary); }
+        .action-btn.ban { background: rgba(239,68,68,0.2); color: var(--danger); }
+        .action-btn.warn { background: rgba(245,158,11,0.2); color: var(--warning); }
+        .action-btn.edit { background: rgba(99,102,241,0.2); color: var(--primary); }
+        .action-btn:hover { transform: scale(1.1); }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 2000; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: var(--bg-secondary); border-radius: 20px; padding: 24px; width: 100%; max-width: 500px; max-height: 80vh; overflow-y: auto; border: 1px solid var(--border); }
+        .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .modal-header h3 { font-size: 18px; }
+        .modal-close { width: 32px; height: 32px; border-radius: 8px; border: none; background: var(--bg-tertiary); color: var(--text); cursor: pointer; }
+        .theme-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 16px; }
+        .theme-option { aspect-ratio: 1; border-radius: 12px; cursor: pointer; border: 3px solid transparent; transition: all 0.3s; }
+        .theme-option:hover { transform: scale(1.05); }
+        .theme-option.active { border-color: white; }
+        .theme-purple { background: #8b5cf6; }
+        .theme-blue { background: #3b82f6; }
+        .theme-green { background: #22c55e; }
+        .theme-red { background: #ef4444; }
+        .theme-orange { background: #f97316; }
+        .theme-pink { background: #ec4899; }
+        .theme-cyan { background: #06b6d4; }
+        .theme-yellow { background: #eab308; }
+        .notification { position: fixed; top: 20px; right: 20px; padding: 16px 24px; border-radius: 12px; background: var(--bg-secondary); border: 1px solid var(--border); z-index: 3000; animation: slideIn 0.3s ease; display: flex; align-items: center; gap: 12px; }
+        .notification.success { border-left: 4px solid var(--success); }
+        .notification.error { border-left: 4px solid var(--danger); }
+        .notification.warning { border-left: 4px solid var(--warning); }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .hidden { display: none !important; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--bg-tertiary); border-radius: 3px; }
+        .warning-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: rgba(245,158,11,0.2); color: var(--warning); border-radius: 4px; font-size: 12px; margin-left: 8px; }
+        .block-chat-btn { padding: 6px 12px; border-radius: 8px; border: none; background: rgba(239,68,68,0.2); color: var(--danger); cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+        .block-chat-btn:hover { background: var(--danger); color: white; }
+        .user-detail-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+        .user-detail-avatar { width: 80px; height: 80px; border-radius: 16px; background: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 700; overflow: hidden; }
+        .user-detail-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .user-detail-info h3 { font-size: 20px; margin-bottom: 4px; }
+        .user-detail-info p { color: var(--text-secondary); }
+        .user-detail-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+        .detail-stat { background: var(--bg); padding: 12px; border-radius: 10px; }
+        .detail-stat label { color: var(--text-secondary); font-size: 12px; display: block; margin-bottom: 4px; }
+        .detail-stat span { font-weight: 600; }
+        .application-form { background: var(--bg); padding: 24px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 16px; }
+        .application-form h3 { margin-bottom: 16px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .contact-request-item { background: var(--bg); border-radius: 12px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); }
+        .social-links { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+        .social-link { padding: 6px 12px; border-radius: 8px; background: var(--bg-tertiary); color: var(--text); font-size: 13px; text-decoration: none; display: flex; align-items: center; gap: 6px; transition: all 0.3s; }
+        .social-link:hover { background: var(--primary); color: white; }
+        .profile-image-upload { width: 80px; height: 80px; border-radius: 16px; background: var(--bg-tertiary); display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; border: 2px dashed var(--border); transition: all 0.3s; }
+        .profile-image-upload:hover { border-color: var(--primary); }
+        .profile-image-upload img { width: 100%; height: 100%; object-fit: cover; }
+        .profile-image-upload i { font-size: 24px; color: var(--text-secondary); }
+        .visibility-toggles { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
+        .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: var(--bg); border-radius: 10px; }
+        .toggle-switch { width: 48px; height: 26px; border-radius: 13px; background: var(--bg-tertiary); cursor: pointer; position: relative; transition: all 0.3s; }
+        .toggle-switch.active { background: var(--primary); }
+        .toggle-switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: white; transition: all 0.3s; }
+        .toggle-switch.active::after { left: 25px; }
+        .status-viewer { display: flex; gap: 12px; overflow-x: auto; padding: 12px 0; }
+        .status-item { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; min-width: 70px; }
+        .status-avatar { width: 56px; height: 56px; border-radius: 50%; border: 3px solid var(--primary); padding: 2px; }
+        .status-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+        .status-avatar.no-status { border-color: var(--text-secondary); opacity: 0.5; }
+        .status-name { font-size: 11px; color: var(--text-secondary); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70px; }
+        .status-modal-content { text-align: center; }
+        .status-modal-content img { max-width: 100%; max-height: 400px; border-radius: 12px; margin-bottom: 16px; }
+        .rules-display { background: var(--bg); padding: 16px; border-radius: 12px; border: 1px solid var(--border); margin-top: 12px; }
+        .rules-display p { color: var(--text-secondary); line-height: 1.6; white-space: pre-wrap; }
+        .rules-editor { width: 100%; min-height: 200px; padding: 16px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit; resize: vertical; }
+        .chat-input-actions { display: flex; gap: 8px; }
+        .chat-input-actions button { width: 40px; height: 40px; border-radius: 10px; border: none; background: var(--bg-tertiary); color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
+        .chat-input-actions button:hover { background: var(--primary); color: white; }
+        .password-change-section { margin-top: 16px; padding: 16px; background: var(--bg); border-radius: 12px; border: 1px solid var(--border); }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="modalContent"></div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, query, where, orderBy, onSnapshot, serverTimestamp, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+        const firebaseConfig = { apiKey: "AIzaSyDHzA_qP_kAHv9fc0aMsqWIwnEOVCoK7EQ", authDomain: "mychats-64c42.firebaseapp.com", projectId: "mychats-64c42", storageBucket: "mychats-64c42.firebasestorage.app", messagingSenderId: "618652560803", appId: "1:618652560803:web:90c1017e010f4c7a05be16", measurementId: "G-QDT5NFGQJ3" };
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+        const googleProvider = new GoogleAuthProvider();
+        const ADMIN_EMAIL = "admin@schoolchat.com";
+
+        let currentUser = null;
+        let currentUserData = null;
+        let selectedContact = null;
+        let currentTheme = "purple";
+        let adminTab = "applications";
+        let appRules = "";
+
+        const renderApp = () => {
+            document.getElementById("app").innerHTML = `
+                <div class="auth-container" id="authScreen">
+                    <div class="auth-card">
+                        <div class="auth-logo"><h1><i class="fas fa-comments"></i> SchoolChat</h1><p>Connect with your school community</p></div>
+                        <div id="loginForm">
+                            <div class="form-group"><label>Email</label><input type="email" id="loginEmail" placeholder="Enter your email"></div>
+                            <div class="form-group"><label>Password</label><input type="password" id="loginPassword" placeholder="Enter your password"></div>
+                            <button class="btn btn-primary" onclick="loginWithEmail()"><i class="fas fa-sign-in-alt"></i> Sign In</button>
+                            <div class="divider"><span>or</span></div>
+                            <button class="btn btn-google" onclick="loginWithGoogle()"><i class="fab fa-google"></i> Sign in with Google</button>
+                            <p class="auth-switch">Don't have an account? <a onclick="showRegister()">Sign Up</a></p>
+                        </div>
+                        <div id="registerForm" class="hidden">
+                            <div class="form-group"><label>Full Name</label><input type="text" id="regName" placeholder="Enter your full name"></div>
+                            <div class="form-group"><label>Email</label><input type="email" id="regEmail" placeholder="Enter your email"></div>
+                            <div class="form-group"><label>Password</label><input type="password" id="regPassword" placeholder="Create a password"></div>
+                            <button class="btn btn-primary" onclick="registerWithEmail()"><i class="fas fa-user-plus"></i> Create Account</button>
+                            <div class="divider"><span>or</span></div>
+                            <button class="btn btn-google" onclick="loginWithGoogle()"><i class="fab fa-google"></i> Sign up with Google</button>
+                            <p class="auth-switch">Already have an account? <a onclick="showLogin()">Sign In</a></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="app-container hidden" id="mainApp">
+                    <div class="sidebar">
+                        <div class="sidebar-header">
+                            <h2><i class="fas fa-comments"></i> SchoolChat</h2>
+                            <div class="sidebar-actions">
+                                <button class="icon-btn" onclick="showAddContactModal()" title="Add Contact"><i class="fas fa-user-plus"></i></button>
+                                <button class="icon-btn" onclick="openAdminPanel()" id="adminBtn" style="display:none" title="Admin"><i class="fas fa-shield-alt"></i></button>
+                                <button class="icon-btn" onclick="handleLogout()" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
+                            </div>
+                        </div>
+                        <div class="user-profile" id="userProfile" onclick="showMyProfile()"></div>
+                        <div style="padding:0 20px 12px;border-bottom:1px solid var(--border);">
+                            <div class="status-viewer" id="statusViewer"></div>
+                        </div>
+                        <div class="search-box"><input type="text" placeholder="Search contacts..." oninput="searchContacts(this.value)"></div>
+                        <div class="contacts-list" id="contactsList"></div>
+                    </div>
+                    <div class="chat-area" id="chatArea">
+                        <div class="empty-state"><i class="fas fa-comments"></i><h3>Welcome to SchoolChat</h3><p>Select a contact to start chatting</p></div>
+                    </div>
+                </div>
+                <div class="admin-panel" id="adminPanel">
+                    <div class="admin-sidebar">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+                            <h2 style="color:var(--primary);font-size:18px;"><i class="fas fa-shield-alt"></i> Admin</h2>
+                            <button class="icon-btn" onclick="closeAdminPanel()"><i class="fas fa-times"></i></button>
+                        </div>
+                        <div class="admin-nav-item active" onclick="switchAdminTab('applications')"><i class="fas fa-file-alt"></i> Applications</div>
+                        <div class="admin-nav-item" onclick="switchAdminTab('users')"><i class="fas fa-users"></i> Users</div>
+                        <div class="admin-nav-item" onclick="switchAdminTab('chats')"><i class="fas fa-comments"></i> All Chats</div>
+                        <div class="admin-nav-item" onclick="switchAdminTab('blocked')"><i class="fas fa-ban"></i> Blocked Chats</div>
+                        <div class="admin-nav-item" onclick="switchAdminTab('rules')"><i class="fas fa-gavel"></i> Rules</div>
+                        <div class="admin-nav-item" onclick="switchAdminTab('settings')"><i class="fas fa-cog"></i> Settings</div>
+                    </div>
+                    <div class="admin-content" id="adminContent"></div>
+                </div>
+            `;
+        };
+        renderApp();
+
+        window.showLogin = () => { document.getElementById("loginForm").classList.remove("hidden"); document.getElementById("registerForm").classList.add("hidden"); };
+        window.showRegister = () => { document.getElementById("loginForm").classList.add("hidden"); document.getElementById("registerForm").classList.remove("hidden"); };
+
+        window.loginWithEmail = async () => {
+            try { await signInWithEmailAndPassword(auth, document.getElementById("loginEmail").value, document.getElementById("loginPassword").value); }
+            catch (e) { showNotification(e.message, "error"); }
+        };
+
+        window.registerWithEmail = async () => {
+            try {
+                const cred = await createUserWithEmailAndPassword(auth, document.getElementById("regEmail").value, document.getElementById("regPassword").value);
+                await setDoc(doc(db, "users", cred.user.uid), { name: document.getElementById("regName").value, email: document.getElementById("regEmail").value, number: null, status: "pending", role: document.getElementById("regEmail").value === ADMIN_EMAIL ? "admin" : "user", theme: "purple", createdAt: serverTimestamp(), lastSeen: serverTimestamp(), online: true, warnings: [], banned: false, photoURL: null, statusText: "", bio: "", socialLinks: {}, visibility: { showImage: true, showLinks: true, showStatus: true }, posts: [] });
+            } catch (e) { showNotification(e.message, "error"); }
+        };
+
+        window.loginWithGoogle = async () => {
+            try {
+                const result = await signInWithPopup(auth, googleProvider);
+                const userDoc = await getDoc(doc(db, "users", result.user.uid));
+                if (!userDoc.exists()) {
+                    await setDoc(doc(db, "users", result.user.uid), { name: result.user.displayName || "User", email: result.user.email, number: null, status: "pending", role: result.user.email === ADMIN_EMAIL ? "admin" : "user", theme: "purple", createdAt: serverTimestamp(), lastSeen: serverTimestamp(), online: true, warnings: [], banned: false, photoURL: result.user.photoURL, statusText: "", bio: "", socialLinks: {}, visibility: { showImage: true, showLinks: true, showStatus: true }, posts: [] });
+                }
+            } catch (e) { showNotification(e.message, "error"); }
+        };
+
+        window.handleLogout = async () => {
+            if (currentUser) await updateDoc(doc(db, "users", currentUser.uid), { online: false, lastSeen: serverTimestamp() });
+            signOut(auth);
+        };
+
+        const loadRules = async () => {
+            const rulesDoc = await getDoc(doc(db, "settings", "rules"));
+            appRules = rulesDoc.exists() ? rulesDoc.data().text : "Welcome to SchoolChat! Please follow these rules:\n1. Be respectful to all users\n2. No spam or harassment\n3. Keep conversations appropriate\n4. Report any issues to admin";
+        };
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists()) {
+                    currentUserData = userDoc.data();
+                    await loadRules();
+                    if (currentUserData.banned) { showNotification("Your account has been banned", "error"); signOut(auth); return; }
+                    if (currentUserData.status === "approved" || currentUserData.role === "admin") { showMainApp(); loadContacts(); updateOnlineStatus(true); loadStatuses(); }
+                    else if (currentUserData.status === "pending") showPendingScreen();
+                    else if (currentUserData.status === "denied") showDeniedScreen();
+                }
+            } else { currentUser = null; currentUserData = null; renderApp(); }
+        });
+
+        const showMainApp = () => {
+            document.getElementById("authScreen").classList.add("hidden");
+            document.getElementById("mainApp").classList.remove("hidden");
+            document.getElementById("adminBtn").style.display = currentUserData?.role === "admin" ? "flex" : "none";
+            applyTheme(currentUserData?.theme || "purple");
+            updateUserProfile();
+        };
+
+        const showPendingScreen = () => {
+            document.getElementById("authScreen").innerHTML = `<div class="auth-card" style="text-align:center;"><div style="margin-bottom:20px;"><i class="fas fa-clock" style="font-size:64px;color:var(--warning);"></i></div><h2 style="margin-bottom:12px;">Application Pending</h2><p style="color:var(--text-secondary);margin-bottom:24px;">Your application is being reviewed. Please wait for approval.</p><button class="btn btn-secondary" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button></div>`;
+        };
+
+        const showDeniedScreen = () => {
+            document.getElementById("authScreen").innerHTML = `<div class="auth-card" style="text-align:center;"><div style="margin-bottom:20px;"><i class="fas fa-times-circle" style="font-size:64px;color:var(--danger);"></i></div><h2 style="margin-bottom:12px;">Application Denied</h2><p style="color:var(--text-secondary);margin-bottom:24px;">Your application has been denied.</p><button class="btn btn-secondary" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button></div>`;
+        };
+
+        const updateUserProfile = () => {
+            const p = document.getElementById("userProfile");
+            if (!currentUserData) return;
+            const hasPhoto = currentUserData.photoURL && currentUserData.visibility?.showImage !== false;
+            const avatar = hasPhoto ? `<img src="${currentUserData.photoURL}" alt="">` : (currentUserData.name?.split(" ").map(n=>n[0]).join("").toUpperCase()||"?");
+            const adminBadge = currentUserData.role === "admin" ? '<span class="admin-badge">ADMIN</span>' : '';
+            const statusText = currentUserData.statusText ? `<div class="user-status-text">${currentUserData.statusText}</div>` : '';
+            p.innerHTML = `<div class="user-avatar">${avatar}</div><div class="user-info"><div class="user-name">${currentUserData.name||"User"} ${adminBadge}</div><div class="user-number">${currentUserData.number?"#"+currentUserData.number:"No number assigned"}</div>${statusText}</div>`;
+        };
+
+        const updateOnlineStatus = async (online) => { if (currentUser) await updateDoc(doc(db, "users", currentUser.uid), { online, lastSeen: serverTimestamp() }); };
+        window.addEventListener("beforeunload", () => updateOnlineStatus(false));
+        document.addEventListener("visibilitychange", () => updateOnlineStatus(!document.hidden));
+
+        const applyTheme = (theme) => { document.body.className = `theme-${theme}`; currentTheme = theme; };
+
+        const loadContacts = () => {
+            if (!currentUser) return;
+            const cl = document.getElementById("contactsList");
+            onSnapshot(query(collection(db, "users"), where("status", "==", "approved")), (snap) => {
+                cl.innerHTML = "";
+                snap.forEach((d) => {
+                    if (d.id === currentUser.uid) return;
+                    const u = d.data();
+                    const hasPhoto = u.photoURL && u.visibility?.showImage !== false;
+                    const avatar = hasPhoto ? `<img src="${u.photoURL}" alt="">` : (u.name?.split(" ").map(n=>n[0]).join("").toUpperCase()||"?");
+                    const adminBadge = u.role === "admin" ? '<span class="admin-badge">ADMIN</span>' : '';
+                    const statusLine = u.statusText && u.visibility?.showStatus !== false ? `<div class="contact-status"><i class="fas fa-circle" style="font-size:6px;margin-right:4px;"></i>${u.statusText}</div>` : '';
+                    cl.innerHTML += `<div class="contact-item" onclick="openChat('${d.id}')"><div class="contact-avatar">${avatar}<div class="status-dot ${u.online?'':'offline'}"></div></div><div class="contact-info"><div class="contact-name">${u.name} ${adminBadge}</div><div class="contact-last-message">#${u.number||"No number"}</div>${statusLine}</div></div>`;
+                });
+            });
+        };
+
+        window.searchContacts = (s) => { document.querySelectorAll(".contact-item").forEach(i => { const n = i.querySelector(".contact-name")?.textContent.toLowerCase()||""; i.style.display = n.includes(s.toLowerCase()) ? "flex" : "none"; }); };
+
+        window.openChat = async (userId) => {
+            const ud = await getDoc(doc(db, "users", userId));
+            if (!ud.exists()) return;
+            const userData = ud.data();
+            selectedContact = { id: userId, ...userData };
+            const chatId = [currentUser.uid, userId].sort().join("_");
+            const cd = await getDoc(doc(db, "chats", chatId));
+            if (!cd.exists()) await setDoc(doc(db, "chats", chatId), { participants: [currentUser.uid, userId], createdAt: serverTimestamp(), blocked: false, blockedBy: null });
+            const hasPhoto = userData.photoURL && userData.visibility?.showImage !== false;
+            const avatar = hasPhoto ? `<img src="${userData.photoURL}" alt="">` : (userData.name?.split(" ").map(n=>n[0]).join("").toUpperCase()||"?");
+            const adminBadge = userData.role === "admin" ? '<span class="admin-badge">ADMIN</span>' : '';
+            document.getElementById("chatArea").innerHTML = `
+                <div class="chat-header">
+                    <div class="chat-header-info">
+                        <div class="contact-avatar" style="width:42px;height:42px;">${avatar}<div class="status-dot ${userData.online?'':'offline'}"></div></div>
+                        <div>
+                            <div style="font-weight:600;">${userData.name} ${adminBadge}</div>
+                            <div style="font-size:13px;color:var(--text-secondary);">#${userData.number||"No number"} &bull; ${userData.online?'Online':'Last seen: '+formatLastSeen(userData.lastSeen)}</div>
+                        </div>
+                    </div>
+                    <div class="chat-header-actions">
+                        <button class="icon-btn" onclick="showUserProfile('${userId}')" title="Profile"><i class="fas fa-info-circle"></i></button>
+                        <button class="block-chat-btn" onclick="blockChat('${chatId}')"><i class="fas fa-ban"></i> Block</button>
+                    </div>
+                </div>
+                <div class="chat-messages" id="chatMessages"></div>
+                <div class="chat-input">
+                    <div class="chat-input-actions">
+                        <button onclick="document.getElementById('imageUpload').click()" title="Send Image"><i class="fas fa-image"></i></button>
+                        <input type="file" id="imageUpload" accept="image/*" style="display:none" onchange="sendImage('${chatId}', this)">
+                    </div>
+                    <input type="text" id="messageInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter')sendMessage('${chatId}')">
+                    <button class="send-btn" onclick="sendMessage('${chatId}')"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            `;
+            loadMessages(chatId);
+        };
+
+        const loadMessages = (chatId) => {
+            const mc = document.getElementById("chatMessages");
+            if (!mc) return;
+            onSnapshot(query(collection(db, "chats", chatId, "messages"), orderBy("createdAt")), (snap) => {
+                mc.innerHTML = "";
+                snap.forEach(async (d) => {
+                    const msg = d.data();
+                    const isSent = msg.senderId === currentUser.uid;
+                    const senderDoc = await getDoc(doc(db, "users", msg.senderId));
+                    const senderData = senderDoc.exists() ? senderDoc.data() : {};
+                    const isAdminSender = senderData.role === "admin";
+                    const senderBadge = isAdminSender ? `<div class="message-sender is-admin"><i class="fas fa-crown"></i> Admin</div>` : '';
+                    const deleteBtn = currentUserData.role === "admin" ? `<button class="message-delete-btn" onclick="deleteMessage('${chatId}','${d.id}')" title="Delete"><i class="fas fa-trash"></i></button>` : '';
+                    const imageHtml = msg.imageUrl ? `<img src="${msg.imageUrl}" class="message-image" onclick="window.open('${msg.imageUrl}','_blank')">` : '';
+                    mc.innerHTML += `<div class="message ${isSent?'sent':'received'}">${senderBadge}<div>${msg.text||''}</div>${imageHtml}<div class="message-time">${formatTime(msg.createdAt)}</div>${deleteBtn}</div>`;
+                });
+                mc.scrollTop = mc.scrollHeight;
+            });
+        };
+
+        window.sendMessage = async (chatId) => {
+            const input = document.getElementById("messageInput");
+            const text = input.value.trim();
+            if (!text) return;
+            await setDoc(doc(collection(db, "chats", chatId, "messages")), { text, senderId: currentUser.uid, createdAt: serverTimestamp() });
+            input.value = "";
+        };
+
+        window.sendImage = async (chatId, fileInput) => {
+            const file = fileInput.files[0];
+            if (!file) return;
+            const storageRef = ref(storage, `chat_images/${chatId}/${Date.now()}_${file.name}`);
+            await uploadBytes(storageRef, file);
+            const url = await getDownloadURL(storageRef);
+            await setDoc(doc(collection(db, "chats", chatId, "messages")), { text: "", imageUrl: url, senderId: currentUser.uid, createdAt: serverTimestamp() });
+            fileInput.value = "";
+        };
+
+        window.deleteMessage = async (chatId, msgId) => {
+            if (!confirm("Delete this message?")) return;
+            await deleteDoc(doc(db, "chats", chatId, "messages", msgId));
+            showNotification("Message deleted", "success");
+        };
+
+        window.blockChat = async (chatId) => {
+            if (confirm("Block this chat?")) {
+                await updateDoc(doc(db, "chats", chatId), { blocked: true, blockedBy: currentUser.uid, blockedAt: serverTimestamp() });
+                document.getElementById("chatArea").innerHTML = `<div class="empty-state"><i class="fas fa-ban"></i><h3>Chat Blocked</h3><p>This chat has been blocked</p></div>`;
+                showNotification("Chat blocked", "warning");
+            }
+        };
+
+        const formatTime = (t) => { if (!t) return ""; return t.toDate().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }); };
+        const formatLastSeen = (t) => { if (!t) return "Unknown"; const d = t.toDate(); const diff = Date.now()-d; if (diff<60000) return "Just now"; if (diff<3600000) return Math.floor(diff/60000)+"m ago"; if (diff<86400000) return Math.floor(diff/3600000)+"h ago"; return d.toLocaleDateString(); };
+
+        window.showMyProfile = () => {
+            const u = currentUserData;
+            const hasPhoto = u.photoURL && u.visibility?.showImage !== false;
+            document.getElementById("modalContent").innerHTML = `
+                <div class="modal-header"><h3>My Profile</h3><button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button></div>
+                <div style="text-align:center;margin-bottom:20px;">
+                    <div class="profile-image-upload" onclick="document.getElementById('profileImageInput').click()" style="margin:0 auto 12px;">
+                        ${hasPhoto ? `<img src="${u.photoURL}">` : '<i class="fas fa-camera"></i>'}
+                    </div>
+                    <input type="file" id="profileImageInput" accept="image/*" style="display:none" onchange="uploadProfileImage(this)">
+                </div>
+                <div class="form-group"><label>Display Name</label><input type="text" id="editName" value="${u.name||''}"></div>
+                <div class="form-group"><label>Status Text</label><input type="text" id="editStatus" value="${u.statusText||''}" placeholder="What's on your mind?"></div>
+                <div class="form-group"><label>Bio</label><textarea id="editBio" placeholder="Tell us about yourself">${u.bio||''}</textarea></div>
+                <div class="form-group">
+                    <label>Social Links</label>
+                    <div class="form-row"><input type="text" id="socialInstagram" placeholder="Instagram URL" value="${u.socialLinks?.instagram||''}"><input type="text" id="socialTwitter" placeholder="Twitter URL" value="${u.socialLinks?.twitter||''}"></div>
+                    <div class="form-row" style="margin-top:12px;"><input type="text" id="socialYoutube" placeholder="YouTube URL" value="${u.socialLinks?.youtube||''}"><input type="text" id="socialTiktok" placeholder="TikTok URL" value="${u.socialLinks?.tiktok||''}"></div>
+                    <div class="form-row" style="margin-top:12px;"><input type="text" id="socialDiscord" placeholder="Discord" value="${u.socialLinks?.discord||''}"><input type="text" id="socialSnapchat" placeholder="Snapchat" value="${u.socialLinks?.snapchat||''}"></div>
+                </div>
+                <div class="form-group">
+                    <label>Visibility Settings</label>
+                    <div class="visibility-toggles">
+                        <div class="toggle-row"><span>Show Profile Image</span><div class="toggle-switch ${u.visibility?.showImage!==false?'active':''}" onclick="toggleVisibility('showImage',this)"></div></div>
+                        <div class="toggle-row"><span>Show Social Links</span><div class="toggle-switch ${u.visibility?.showLinks!==false?'active':''}" onclick="toggleVisibility('showLinks',this)"></div></div>
+                        <div class="toggle-row"><span>Show Status</span><div class="toggle-switch ${u.visibility?.showStatus!==false?'active':''}" onclick="toggleVisibility('showStatus',this)"></div></div>
+                    </div>
+                </div>
+                <div class="form-group"><label>Theme</label>
+                    <div class="theme-grid">
+                        <div class="theme-option theme-purple ${u.theme==='purple'?'active':''}" onclick="changeTheme('purple')"></div>
+                        <div class="theme-option theme-blue ${u.theme==='blue'?'active':''}" onclick="changeTheme('blue')"></div>
+                        <div class="theme-option theme-green ${u.theme==='green'?'active':''}" onclick="changeTheme('green')"></div>
+                        <div class="theme-option theme-red ${u.theme==='red'?'active':''}" onclick="changeTheme('red')"></div>
+                        <div class="theme-option theme-orange ${u.theme==='orange'?'active':''}" onclick="changeTheme('orange')"></div>
+                        <div class="theme-option theme-pink ${u.theme==='pink'?'active':''}" onclick="changeTheme('pink')"></div>
+                        <div class="theme-option theme-cyan ${u.theme==='cyan'?'active':''}" onclick="changeTheme('cyan')"></div>
+                        <div class="theme-option theme-yellow ${u.theme==='yellow'?'active':''}" onclick="changeTheme('yellow')"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Change Password</label>
+                    <div class="password-change-section">
+                        <div class="form-group"><label>Current Password</label><input type="password" id="currentPassword" placeholder="Enter current password"></div>
+                        <div class="form-group"><label>New Password</label><input type="password" id="newPassword" placeholder="Enter new password"></div>
+                        <button class="btn btn-warning btn-sm" onclick="changeOwnPassword()" style="width:100%"><i class="fas fa-key"></i> Update Password</button>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="saveProfile()"><i class="fas fa-save"></i> Save Changes</button>
+            `;
+            document.getElementById("modalOverlay").classList.add("active");
+        };
+
+        window.uploadProfileImage = async (input) => {
+            const file = input.files[0];
+            if (!file) return;
+            const storageRef = ref(storage, `profile_images/${currentUser.uid}`);
+            await uploadBytes(storageRef, file);
+            const url = await getDownloadURL(storageRef);
+            await updateDoc(doc(db, "users", currentUser.uid), { photoURL: url });
+            currentUserData.photoURL = url;
+            updateUserProfile();
+            showNotification("Profile image updated", "success");
+        };
+
+        window.toggleVisibility = async (key, el) => {
+            el.classList.toggle("active");
+            const vis = currentUserData.visibility || {};
+            vis[key] = el.classList.contains("active");
+            currentUserData.visibility = vis;
+        };
+
+        window.changeOwnPassword = async () => {
+            const current = document.getElementById("currentPassword").value;
+            const newPass = document.getElementById("newPassword").value;
+            if (!current || !newPass) { showNotification("Fill all fields", "error"); return; }
+            if (newPass.length < 6) { showNotification("Password must be at least 6 characters", "error"); return; }
+            try {
+                const credential = EmailAuthProvider.credential(currentUser.email, current);
+                await reauthenticateWithCredential(auth, credential);
+                await updatePassword(auth, newPass);
+                showNotification("Password updated", "success");
+                document.getElementById("currentPassword").value = "";
+                document.getElementById("newPassword").value = "";
+            } catch (e) { showNotification("Current password is incorrect", "error"); }
+        };
+
+        window.saveProfile = async () => {
+            const data = {
+                name: document.getElementById("editName").value,
+                statusText: document.getElementById("editStatus").value,
+                bio: document.getElementById("editBio").value,
+                socialLinks: {
+                    instagram: document.getElementById("socialInstagram").value,
+                    twitter: document.getElementById("socialTwitter").value,
+                    youtube: document.getElementById("socialYoutube").value,
+                    tiktok: document.getElementById("socialTiktok").value,
+                    discord: document.getElementById("socialDiscord").value,
+                    snapchat: document.getElementById("socialSnapchat").value
+                },
+                visibility: currentUserData.visibility
+            };
+            await updateDoc(doc(db, "users", currentUser.uid), data);
+            currentUserData = { ...currentUserData, ...data };
+            updateUserProfile();
+            closeModal();
+            showNotification("Profile updated", "success");
+        };
+
+        window.changeTheme = async (theme) => {
+            applyTheme(theme);
+            if (currentUser) await updateDoc(doc(db, "users", currentUser.uid), { theme });
+            currentUserData.theme = theme;
+            document.querySelectorAll(".theme-option").forEach(el => el.classList.remove("active"));
+            document.querySelector(`.theme-${theme}`)?.classList.add("active");
+        };
+
+        window.showUserProfile = async (userId) => {
+            const ud = await getDoc(doc(db, "users", userId));
+            if (!ud.exists()) return;
+            const u = ud.data();
+            const hasPhoto = u.photoURL && u.visibility?.showImage !== false;
+            const socialLinks = u.socialLinks || {};
+            const hasLinks = u.visibility?.showLinks !== false && Object.values(socialLinks).some(v => v);
+            let linksHtml = '';
+            if (hasLinks) {
+                linksHtml = '<div class="social-links">';
+                if (socialLinks.instagram) linksHtml += `<a href="${socialLinks.instagram}" target="_blank" class="social-link"><i class="fab fa-instagram"></i> Instagram</a>`;
+                if (socialLinks.twitter) linksHtml += `<a href="${socialLinks.twitter}" target="_blank" class="social-link"><i class="fab fa-twitter"></i> Twitter</a>`;
+                if (socialLinks.youtube) linksHtml += `<a href="${socialLinks.youtube}" target="_blank" class="social-link"><i class="fab fa-youtube"></i> YouTube</a>`;
+                if (socialLinks.tiktok) linksHtml += `<a href="${socialLinks.tiktok}" target="_blank" class="social-link"><i class="fab fa-tiktok"></i> TikTok</a>`;
+                if (socialLinks.discord) linksHtml += `<a href="${socialLinks.discord}" target="_blank" class="social-link"><i class="fab fa-discord"></i> Discord</a>`;
+                if (socialLinks.snapchat) linksHtml += `<a href="${socialLinks.snapchat}" target="_blank" class="social-link"><i class="fab fa-snapchat"></i> Snapchat</a>`;
+                linksHtml += '</div>';
+            }
+            document.getElementById("modalContent").innerHTML = `
+                <div class="modal-header"><h3>User Profile</h3><button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button></div>
+                <div class="user-detail-header">
+                    <div class="user-detail-avatar">${hasPhoto ? `<img src="${u.photoURL}">` : (u.name?.[0]?.toUpperCase()||'?')}</div>
+                    <div class="user-detail-info">
+                        <h3>${u.name} ${u.role==='admin'?'<span class="admin-badge">ADMIN</span>':''}</h3>
+                        <p>${u.email}</p>
+                        ${u.statusText && u.visibility?.showStatus!==false ? `<p style="color:var(--primary);margin-top:4px;"><i class="fas fa-circle" style="font-size:8px;"></i> ${u.statusText}</p>` : ''}
+                    </div>
+                </div>
+                ${u.bio ? `<div style="margin-bottom:16px;"><label style="color:var(--text-secondary);font-size:13px;">Bio</label><p>${u.bio}</p></div>` : ''}
+                <div class="user-detail-stats">
+                    <div class="detail-stat"><label>Number</label><span>#${u.number||'N/A'}</span></div>
+                    <div class="detail-stat"><label>Status</label><span class="status-badge ${u.online?'status-online':'status-offline'}">${u.online?'Online':'Offline'}</span></div>
+                    <div class="detail-stat"><label>Warnings</label><span>${u.warnings?.length||0}</span></div>
+                    <div class="detail-stat"><label>Last Seen</label><span>${u.lastSeen?formatLastSeen(u.lastSeen):'N/A'}</span></div>
+                </div>
+                ${linksHtml}
+            `;
+            document.getElementById("modalOverlay").classList.add("active");
+        };
+
+        window.showAddContactModal = () => {
+            document.getElementById("modalContent").innerHTML = `<div class="modal-header"><h3>Add Contact</h3><button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button></div><div class="form-group"><label>Enter user number</label><input type="number" id="contactNumber" placeholder="Enter number"></div><button class="btn btn-primary" onclick="searchByNumber()"><i class="fas fa-search"></i> Search</button><div id="searchResults" style="margin-top:16px;"></div>`;
+            document.getElementById("modalOverlay").classList.add("active");
+        };
+
+        window.searchByNumber = async () => {
+            const number = parseInt(document.getElementById("contactNumber").value);
+            if (!number) return;
+            const q = query(collection(db, "users"), where("number", "==", number));
+            const snap = await getDocs(q);
+            const r = document.getElementById("searchResults");
+            if (snap.empty) { r.innerHTML = "<p style='color:var(--text-secondary);'>No user found</p>"; return; }
+            snap.forEach((d) => {
+                const u = d.data();
+                if (d.id !== currentUser.uid) r.innerHTML += `<div class="contact-request-item"><h4>${u.name}</h4><p>#${u.number}</p><button class="btn btn-primary btn-sm" onclick="openChat('${d.id}');closeModal();"><i class="fas fa-comment"></i> Chat</button></div>`;
+            });
+        };
+
+        window.closeModal = () => { document.getElementById("modalOverlay").classList.remove("active"); };
+
+        const showNotification = (msg, type) => {
+            const n = document.createElement("div");
+            n.className = `notification ${type}`;
+            n.innerHTML = `<i class="fas fa-${type==='success'?'check-circle':type==='error'?'exclamation-circle':'exclamation-triangle'}"></i><span>${msg}</span>`;
+            document.body.appendChild(n);
+            setTimeout(() => n.remove(), 3000);
+        };
+
+        const loadStatuses = () => {
+            const sv = document.getElementById("statusViewer");
+            if (!sv) return;
+            onSnapshot(query(collection(db, "users"), where("status", "==", "approved")), (snap) => {
+                sv.innerHTML = '';
+                let myStatusHtml = `<div class="status-item" onclick="showAddStatusModal()"><div class="status-avatar ${currentUserData?.statusImage?'':'no-status'}">${currentUserData?.statusImage ? `<img src="${currentUserData.statusImage}">` : '<i class="fas fa-plus" style="font-size:20px;"></i>'}</div><div class="status-name">My Status</div></div>`;
+                sv.innerHTML = myStatusHtml;
+                snap.forEach((d) => {
+                    if (d.id === currentUser.uid) return;
+                    const u = d.data();
+                    if (!u.statusImage) return;
+                    sv.innerHTML += `<div class="status-item" onclick="viewStatus('${d.id}')"><div class="status-avatar"><img src="${u.statusImage}"></div><div class="status-name">${u.name?.split(' ')[0]}</div></div>`;
+                });
+            });
+        };
+
+        window.showAddStatusModal = () => {
+            document.getElementById("modalContent").innerHTML = `<div class="modal-header"><h3>My Status</h3><button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button></div>${currentUserData?.statusImage ? `<div style="text-align:center;margin-bottom:16px;"><img src="${currentUserData.statusImage}" style="max-width:100%;border-radius:12px;"><br><button class="btn btn-danger btn-sm" style="margin-top:12px;" onclick="deleteStatus()"><i class="fas fa-trash"></i> Delete Status</button></div>` : ''}<div class="form-group"><label>Upload Status Image</label><input type="file" id="statusImageInput" accept="image/*"></div><button class="btn btn-primary" onclick="uploadStatus()"><i class="fas fa-upload"></i> Upload</button>`;
+            document.getElementById("modalOverlay").classList.add("active");
+        };
+
+        window.uploadStatus = async () => {
+            const file = document.getElementById("statusImageInput").files[0];
+            if (!file) { showNotification("Select an image", "error"); return; }
+            const storageRef = ref(storage, `statuses/${currentUser.uid}`);
+            await uploadBytes(storageRef, file);
+            const url = await getDownloadURL(storageRef);
+            await updateDoc(doc(db, "users", currentUser.uid), { statusImage: url, statusTimestamp: serverTimestamp() });
+            currentUserData.statusImage = url;
+            closeModal();
+            showNotification("Status updated", "success");
+            loadStatuses();
+        };
+
+        window.deleteStatus = async () => {
+            await updateDoc(doc(db, "users", currentUser.uid), { statusImage: null, statusTimestamp: null });
+            currentUserData.statusImage = null;
+            closeModal();
+            showNotification("Status deleted", "success");
+            loadStatuses();
+        };
+
+        window.viewStatus = async (userId) => {
+            const ud = await getDoc(doc(db, "users", userId));
+            if (!ud.exists()) return;
+            const u = ud.data();
+            document.getElementById("modalContent").innerHTML = `<div class="status-modal-content"><div class="modal-header"><h3>${u.name}'s Status</h3><button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button></div><img src="${u.statusImage}"><p style="color:var(--text-secondary);margin-top:8px;">${u.statusTimestamp ? 'Posted '+formatLastSeen(u.statusTimestamp) : ''}</p></div>`;
+            document.getElementById("modalOverlay").classList.add("active");
+        };
+
+        // ADMIN PANEL
+        window.openAdminPanel = async () => { if (currentUserData?.role !== "admin") return; document.getElementById("adminPanel").classList.add("active"); switchAdminTab("applications"); };
+        window.closeAdminPanel = () => { document.getElementById("adminPanel").classList.remove("active"); };
+
+        window.switchAdminTab = (tab) => {
+            adminTab = tab;
+            document.querySelectorAll(".admin-nav-item").forEach(el => el.classList.remove("active"));
+            event?.target?.closest?.(".admin-nav-item")?.classList.add("active");
+            loadAdminTab(tab);
+        };
+
+        const loadAdminTab = async (tab) => {
+            const c = document.getElementById("adminContent");
+            switch(tab) {
+                case "applications": await loadApplications(c); break;
+                case "users": await loadUsers(c); break;
+                case "chats": await loadAllChats(c); break;
+                case "blocked": await loadBlockedChats(c); break;
+                case "rules": loadRulesAdmin(c); break;
+                case "settings": loadAdminSettings(c); break;
+            }
+        };
+
+        const loadApplications = async (c) => {
+            const snap = await getDocs(query(collection(db, "users"), where("status", "==", "pending")));
+            let html = '<div class="admin-header"><h2>Pending Applications</h2></div>';
+            if (snap.empty) { html += '<p style="color:var(--text-secondary);">No pending applications</p>'; }
+            else {
+                html += '<table class="admin-table"><thead><tr><th>User</th><th>Email</th><th>Application</th><th>Actions</th></tr></thead><tbody>';
+                snap.forEach((d) => {
+                    const u = d.data(), app = u.application||{};
+                    html += `<tr><td>${u.name}</td><td>${u.email}</td><td><strong>Phone:</strong> ${app.phone||'N/A'}<br><strong>Grade:</strong> ${app.grade||'N/A'}<br><strong>Reason:</strong> ${app.reason||'N/A'}</td><td><div class="action-btns"><button class="action-btn approve" onclick="approveUser('${d.id}')"><i class="fas fa-check"></i></button><button class="action-btn deny" onclick="denyUser('${d.id}')"><i class="fas fa-times"></i></button></div></td></tr>`;
+                });
+                html += '</tbody></table>';
+            }
+            c.innerHTML = html;
+        };
+
+        const loadUsers = async (c) => {
+            const snap = await getDocs(query(collection(db, "users"), where("status", "==", "approved")));
+            let html = '<div class="admin-header"><h2>All Users</h2></div><table class="admin-table"><thead><tr><th>User</th><th>Number</th><th>Status</th><th>Warnings</th><th>Last Seen</th><th>Actions</th></tr></thead><tbody>';
+            snap.forEach((d) => {
+                const u = d.data();
+                html += `<tr><td>${u.name} ${u.banned?'<span class="status-badge status-banned">BANNED</span>':''}</td><td>#${u.number||'N/A'}</td><td><span class="status-badge ${u.online?'status-online':'status-offline'}">${u.online?'Online':'Offline'}</span></td><td>${u.warnings?.length||0}</td><td>${u.lastSeen?formatLastSeen(u.lastSeen):'N/A'}</td><td><div class="action-btns"><button class="action-btn view" onclick="viewUser('${d.id}')" title="View"><i class="fas fa-eye"></i></button><button class="action-btn edit" onclick="adminChangePassword('${d.id}','${u.email}')" title="Change Password"><i class="fas fa-key"></i></button><button class="action-btn warn" onclick="warnUser('${d.id}')" title="Warn"><i class="fas fa-exclamation-triangle"></i></button><button class="action-btn ban" onclick="banUser('${d.id}')" title="Ban"><i class="fas fa-ban"></i></button></div></td></tr>`;
+            });
+            html += '</tbody></table>';
+            c.innerHTML = html;
+        };
+
+        const loadAllChats = async (c) => {
+            const snap = await getDocs(collection(db, "chats"));
+            let html = '<div class="admin-header"><h2>All Chats</h2></div>';
+            if (snap.empty) { html += '<p style="color:var(--text-secondary);">No chats yet</p>'; }
+            else {
+                html += '<table class="admin-table"><thead><tr><th>Participants</th><th>Messages</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+                for (const d of snap.docs) {
+                    const chat = d.data();
+                    const ms = await getDocs(collection(db, "chats", d.id, "messages"));
+                    const names = [];
+                    for (const p of chat.participants||[]) { const ud = await getDoc(doc(db, "users", p)); if (ud.exists()) names.push(ud.data().name); }
+                    html += `<tr><td>${names.join(' & ')}</td><td>${ms.size}</td><td>${chat.blocked?'<span class="status-badge status-banned">Blocked</span>':'Active'}</td><td><div class="action-btns"><button class="action-btn view" onclick="viewChatAdmin('${d.id}')" title="View"><i class="fas fa-eye"></i></button></div></td></tr>`;
+                }
+                html += '</tbody></table>';
+            }
+            c.innerHTML = html;
+        };
+
+        const loadBlockedChats = async (c) => {
+            const snap = await getDocs(query(collection(db, "chats"), where("blocked", "==", true)));
+            let html = '<div class="admin-header"><h2>Blocked Chats</h2></div>';
+            if (snap.empty) { html += '<p style="color:var(--text-secondary);">No blocked chats</p>'; }
+            else {
+                html += '<table class="admin-table"><thead><tr><th>Chat</th><th>Blocked By</th><th>Actions</th></tr></thead><tbody>';
+                for (const d of snap.docs) {
+                    const chat = d.data();
+                    const bd = await getDoc(doc(db, "users", chat.blockedBy));
+                    const names = [];
+                    for (const p of chat.participants||[]) { const ud = await getDoc(doc(db, "users", p)); if (ud.exists()) names.push(ud.data().name); }
+                    html += `<tr><td>${names.join(' & ')}</td><td>${bd.exists()?bd.data().name:'Unknown'}</td><td><div class="action-btns"><button class="action-btn view" onclick="viewChatAdmin('${d.id}')" title="View"><i class="fas fa-eye"></i></button><button class="action-btn approve" onclick="unblockChat('${d.id}')" title="Unblock"><i class="fas fa-unlock"></i></button></div></td></tr>`;
+                }
+                html += '</tbody></table>';
+            }
+            c.innerHTML = html;
+        };
+
+        const loadRulesAdmin = (c) => {
+            c.innerHTML = `<div class="admin-header"><h2>App Rules</h2></div><div class="form-group"><label>Edit Rules (visible to all users)</label><textarea class="rules-editor" id="rulesEditor">${appRules}</textarea></div><button class="btn btn-primary" onclick="saveRules()"><i class="fas fa-save"></i> Save Rules</button><div class="rules-display" style="margin-top:24px;"><h4 style="margin-bottom:8px;">Current Rules (User View):</h4><p id="rulesPreview">${appRules}</p></div>`;
+        };
+
+        window.saveRules = async () => {
+            const text = document.getElementById("rulesEditor").value;
+            await setDoc(doc(db, "settings", "rules"), { text });
+            appRules = text;
+            document.getElementById("rulesPreview").textContent = text;
+            showNotification("Rules updated", "success");
+        };
+
+        const loadAdminSettings = async (c) => {
+            const themes = ["purple","blue","green","red","orange","pink","cyan","yellow"];
+            c.innerHTML = `<div class="admin-header"><h2>Admin Settings</h2></div>
+                <div class="application-form"><h3>System Info</h3><p style="color:var(--text-secondary);">Admin: ${ADMIN_EMAIL}<br>Logged in: ${currentUserData?.email}</p></div>
+                <div class="application-form"><h3>Change Your Password</h3>
+                    <div class="form-group"><label>Current Password</label><input type="password" id="adminCurrentPass"></div>
+                    <div class="form-group"><label>New Password</label><input type="password" id="adminNewPass"></div>
+                    <button class="btn btn-warning" onclick="adminChangeOwnPassword()"><i class="fas fa-key"></i> Update Password</button>
+                </div>
+                <div class="application-form"><h3>Default Theme (All Users)</h3>
+                    <div class="theme-grid">${themes.map(t => `<div class="theme-option theme-${t}" onclick="setDefaultTheme('${t}')"></div>`).join('')}</div>
+                    <p style="color:var(--text-secondary);margin-top:12px;font-size:13px;">Sets the default theme for new and existing users</p>
+                </div>`;
+        };
+
+        window.adminChangeOwnPassword = async () => {
+            const current = document.getElementById("adminCurrentPass").value;
+            const newPass = document.getElementById("adminNewPass").value;
+            if (!current || !newPass) { showNotification("Fill all fields", "error"); return; }
+            if (newPass.length < 6) { showNotification("Password must be at least 6 characters", "error"); return; }
+            try {
+                const credential = EmailAuthProvider.credential(currentUser.email, current);
+                await reauthenticateWithCredential(auth, credential);
+                await updatePassword(auth, newPass);
+                showNotification("Password updated", "success");
+                document.getElementById("adminCurrentPass").value = "";
+                document.getElementById("adminNewPass").value = "";
+            } catch (e) { showNotification("Current password is incorrect", "error"); }
+        };
+
+        window.setDefaultTheme = async (theme) => {
+            if (!confirm(`Set "${theme}" as default theme for all users?`)) return;
+            const snap = await getDocs(query(collection(db, "users"), where("status", "==", "approved")));
+            const batch = [];
+            snap.forEach((d) => { batch.push(updateDoc(doc(db, "users", d.id), { theme })); });
+            await Promise.all(batch);
+            applyTheme(theme);
+            showNotification(`Default theme set to ${theme}`, "success");
+        };
+
+        window.approveUser = async (userId) => {
+            const number = Math.floor(1000 + Math.random() * 9000);
+            await updateDoc(doc(db, "users", userId), { status: "approved", number });
+            showNotification(`User approved with #${number}`, "success");
+            loadAdminTab("applications");
+        };
+
+        window.denyUser = async (userId) => { await updateDoc(doc(db, "users", userId), { status: "denied" }); showNotification("User denied", "error"); loadAdminTab("applications"); };
+
+        window.viewUser = async (userId) => {
+            const ud = await getDoc(doc(db, "users", userId));
+            if (!ud.exists()) return;
+            const u = ud.data();
+            document.getElementById("modalContent").innerHTML = `<div class="modal-header"><h3>User Details</h3><button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button></div>
+                <div class="user-detail-header"><div class="user-detail-avatar">${u.photoURL?`<img src="${u.photoURL}">`:(u.name?.[0]?.toUpperCase()||'?')}</div><div class="user-detail-info"><h3>${u.name} ${u.role==='admin'?'<span class="admin-badge">ADMIN</span>':''}</h3><p>${u.email}</p></div></div>
+                <div class="user-detail-stats"><div class="detail-stat"><label>Number</label><span>#${u.number||'N/A'}</span></div><div class="detail-stat"><label>Status</label><span class="status-badge ${u.online?'status-online':'status-offline'}">${u.online?'Online':'Offline'}</span></div><div class="detail-stat"><label>Warnings</label><span>${u.warnings?.length||0}</span></div><div class="detail-stat"><label>Last Seen</label><span>${u.lastSeen?formatLastSeen(u.lastSeen):'N/A'}</span></div></div>
+                ${u.warnings?.length?`<div style="margin-bottom:16px;"><h4>Warnings:</h4>${u.warnings.map(w=>`<div class="warning-badge"><i class="fas fa-exclamation-triangle"></i> ${w}</div>`).join(' ')}</div>`:''}
+                <div class="action-btns" style="justify-content:flex-end;"><button class="btn btn-warning btn-sm" onclick="warnUser('${userId}');closeModal();"><i class="fas fa-exclamation-triangle"></i> Warn</button><button class="btn btn-danger btn-sm" onclick="banUser('${userId}');closeModal();"><i class="fas fa-ban"></i> Ban</button></div>`;
+            document.getElementById("modalOverlay").classList.add("active");
+        };
+
+        window.adminChangePassword = (userId, email) => {
+            document.getElementById("modalContent").innerHTML = `<div class="modal-header"><h3>Change Password</h3><button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button></div><p style="color:var(--text-secondary);margin-bottom:16px;">Change password for ${email}</p><div class="form-group"><label>New Password</label><input type="password" id="adminUserNewPass" placeholder="Enter new password"></div><button class="btn btn-primary" onclick="adminSetUserPassword('${userId}')"><i class="fas fa-key"></i> Set New Password</button>`;
+            document.getElementById("modalOverlay").classList.add("active");
+        };
+
+        window.adminSetUserPassword = async (userId) => {
+            const newPass = document.getElementById("adminUserNewPass").value;
+            if (!newPass || newPass.length < 6) { showNotification("Password must be at least 6 characters", "error"); return; }
+            await updateDoc(doc(db, "users", userId), { tempPassword: newPass });
+            showNotification("Password will be updated on user's next login (Firebase requires client-side password change)", "success");
+            closeModal();
+        };
+
+        window.warnUser = async (userId) => {
+            const reason = prompt("Enter warning reason:");
+            if (!reason) return;
+            const ud = await getDoc(doc(db, "users", userId));
+            const warnings = ud.data().warnings||[];
+            warnings.push(reason);
+            await updateDoc(doc(db, "users", userId), { warnings });
+            showNotification("User warned", "warning");
+            loadAdminTab("users");
+        };
+
+        window.banUser = async (userId) => {
+            if (!confirm("Ban this user?")) return;
+            await updateDoc(doc(db, "users", userId), { banned: true });
+            showNotification("User banned", "error");
+            loadAdminTab("users");
+        };
+
+        window.viewChatAdmin = (chatId) => {
+            document.getElementById("modalContent").innerHTML = `<div class="modal-header"><h3>Chat View</h3><button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button></div><div style="display:flex;flex-direction:column;height:500px;"><div id="adminChatMessages" style="flex:1;overflow-y:auto;padding:16px;background:var(--bg);border-radius:12px;margin-bottom:12px;"></div><div style="display:flex;gap:8px;"><input type="text" id="adminMessageInput" placeholder="Message as admin..." style="flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text);" onkeypress="if(event.key==='Enter')sendAdminChatMessage('${chatId}')"><button class="send-btn" onclick="sendAdminChatMessage('${chatId}')"><i class="fas fa-paper-plane"></i></button></div></div>`;
+            document.getElementById("modalOverlay").classList.add("active");
+            onSnapshot(query(collection(db, "chats", chatId, "messages"), orderBy("createdAt")), (snap) => {
+                const mc = document.getElementById("adminChatMessages");
+                if (!mc) return;
+                mc.innerHTML = "";
+                snap.forEach((d) => {
+                    const msg = d.data();
+                    const isSent = msg.senderId === currentUser.uid;
+                    mc.innerHTML += `<div class="message ${isSent?'sent':'received'}"><div>${msg.text||''}</div>${msg.imageUrl?`<img src="${msg.imageUrl}" class="message-image">`:''}<div class="message-time">${formatTime(msg.createdAt)}</div><button class="message-delete-btn" onclick="deleteMessage('${chatId}','${d.id}')" title="Delete"><i class="fas fa-trash"></i></button></div>`;
+                });
+                mc.scrollTop = mc.scrollHeight;
+            });
+        };
+
+        window.sendAdminChatMessage = async (chatId) => {
+            const input = document.getElementById("adminMessageInput");
+            const text = input.value.trim();
+            if (!text) return;
+            await setDoc(doc(collection(db, "chats", chatId, "messages")), { text: `[Admin] ${text}`, senderId: currentUser.uid, createdAt: serverTimestamp() });
+            input.value = "";
+        };
+
+        window.unblockChat = async (chatId) => {
+            await updateDoc(doc(db, "chats", chatId), { blocked: false, blockedBy: null, blockedAt: null });
+            showNotification("Chat unblocked", "success");
+            loadAdminTab("blocked");
+        };
+
+        document.getElementById("modalOverlay").addEventListener("click", (e) => { if (e.target.id === "modalOverlay") closeModal(); });
+    </script>
+</body>
+</html>
